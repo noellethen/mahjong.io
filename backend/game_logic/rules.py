@@ -102,19 +102,65 @@ def full_suit(hand):
         
     return len(suits) == 1
 
-def all_chi(hand):
+def ping_hu(player, hand):
+    if player.tai != 0:
+        return False
+    
     if len(hand) != 14:
         return False
     
+    for tile in hand:
+        if len(tile) != 2 or tile[1] not in ['B', 'C', 'D']:
+            return False
+        
+    tile_counts = Counter(hand)
+    pairs = [tile for tile, count in tile_counts.items() if count >= 2]
+
+    for pair in pairs:
+        temp_hand = hand.copy()
+        temp_hand.remove(pair)
+        temp_hand.remove(pair)
+
+        if all(tile_is_suited(t) for t in temp_hand and all_chi_only(sorted(temp_hand))):
+            return True
+        
+    return False
+
+def tile_is_suited(tile):
+    return len(tile) == 2 and tile[1] in ['B', 'C', 'D']
+
+def all_chi_only(tiles):
+    if not tiles:
+        return True
+    
+    tiles = sorted(tiles)
+    first = tiles[0]
+
+    try:
+        num = int(first[0])
+        suit = first[1]
+        second = f"{num+1}{suit}"
+        third = f"{num+2}{suit}"
+
+        if second in tiles and third in tiles:
+            reduced = tiles.copy()
+            reduced.remove(first)
+            reduced.remove(second)
+            reduced.remove(third)
+            return all_chi_only(reduced)
+    except:
+        return False
+    
+    return False
+    
 def calculate_tai(player):
     tai = 0
-    if full_suit(player.hand):
+    if full_suit(player.hand): # 一色
         tai += 3
-    if all_chi(player.hand):
-        tai += 1
-    if all_pong(player.hand):
+    if all_pong(player.hand): # 碰碰胡
         tai += 2
-    if half_suit(player.hand):
+    if half_suit(player.hand): # 半色
         tai += 2
-    tai += dragon_or_wind(player.hand)
+    if ping_hu(player, player.hand):
+        tai += 4
     return tai

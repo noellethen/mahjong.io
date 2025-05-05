@@ -11,15 +11,15 @@ class Player:
     def draw_tile(self, tile):
         self.hand.append(tile)
 
-    def discard_tile(self, tile):
-        if tile in self.hand:
-            self.hand.remove(tile)
-            return tile
+    def discard_tile(self):
+        # if tile in self.hand:
+        #     self.hand.remove(tile)
+        #     return tile
 
         # For simulation
 
-        # if self.hand:
-        #     return self.hand.pop(0) # Discards first tile
+        if self.hand:
+            return self.hand.pop(0) # Discards first tile
         return None
 
     def has_won(self):
