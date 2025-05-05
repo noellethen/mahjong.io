@@ -103,8 +103,9 @@ def full_suit(hand):
     return len(suits) == 1
 
 def all_chi(hand):
+    if len(hand) != 14:
+        return False
     
-
 def calculate_tai(player):
     tai = 0
     if full_suit(player.hand):
