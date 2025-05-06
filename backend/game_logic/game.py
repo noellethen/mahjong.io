@@ -3,7 +3,8 @@ from player import Player
 from tiles import generate_full_wall
 from rules import (
     handle_bonus_tile, 
-    can_chi, can_pong, can_gang, resolve_pong, resolve_chi, resolve_gang
+    can_chi, can_pong, can_gang, can_concealed_gang, can_supplemental_gang,
+    resolve_pong, resolve_chi, resolve_gang, resolve_concealed_gang, resolve_supplemental_gang
 )
 
 class Game:
@@ -41,7 +42,7 @@ class Game:
 
                 if choice == 'g':
                     print(f"Player {responder_id} calls PONG!")
-                    resolve_gang(responder, discarded_tile)
+                    resolve_gang(self,responder, discarded_tile)
                     self.turn = responder_id
                     return True
 
@@ -109,6 +110,29 @@ class Game:
                 drawn_tile = None  
 
             interactive = (current_player.id == self.interactive_player_id)
+
+            concealed_tiles = can_concealed_gang(current_player.hand)
+            if concealed_tiles:
+                print(f"\nPlayer {current_player.id}, you can declare a concealed Gang with: {concealed_tiles}")
+                print(f"Your hand: {current_player.hand}")
+                if current_player.id == self.interactive_player_id:
+                    choice = input("Declare concealed Gang? Enter tile or press Enter to skip: ")
+                    if choice in concealed_tiles:
+                        resolve_concealed_gang(self, current_player, choice)
+                else:
+                    resolve_concealed_gang(self, current_player, concealed_tiles[0])
+
+            supp_tiles = can_supplemental_gang(current_player)
+            if supp_tiles:
+                print(f"\nPlayer {current_player.id}, you can declare upgrade to Gang with: {supp_tiles}")
+                print(f"Your hand: {current_player.hand}")
+                if current_player.id == self.interactive_player_id:
+                    choice = input("Upgrade to Gang? Enter tile or press Enter to skip: ")
+                    if choice in supp_tiles:
+                        resolve_supplemental_gang(self, current_player, choice)
+                else:
+                    resolve_supplemental_gang(self, current_player, supp_tiles[0])
+
             discarded_tile = current_player.discard_tile(interactive=interactive)  
             if drawn_tile:
                 print(f"Turn {self.turn + 1}: Player {current_player.id} draws {drawn_tile}, discards {discarded_tile}")

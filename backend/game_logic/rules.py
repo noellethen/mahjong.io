@@ -49,8 +49,10 @@ def is_valid_group(tiles):
 
     return False
 
-def check_win(hand):
-    if len(hand) != 14:
+def check_win(hand, exposed_hand = []):
+    total_sets = len(exposed_hand)
+    remaining = 14 - total_sets * 3
+    if len(hand) != remaining:
         return False
     
     tile_counts = Counter(hand)
@@ -207,16 +209,51 @@ def resolve_chi(player, tile):
     chi = chi_options[0]  
     for t in chi:
         player.hand.remove(t)
-    meld = chi + [tile]
-    meld.sort()
-    player.exposed_hand.append(meld)
-    print(f"{meld} formed as Chi!")
+    group = chi + [tile]
+    group.sort()
+    player.exposed_hand.append(group)
+    print(f"{group} formed as Chi!")
 
 def can_gang(hand, tile):
     return hand.count(tile) == 3
 
-def resolve_gang(player, tile):
+def can_concealed_gang(hand):
+    return [tile for tile, count in Counter(hand).items() if count == 4]
+
+def can_supplemental_gang(player):
+    for group in player.exposed_hand:
+        if len(group) == 3 and group.count(group[0] == 3):
+            if group[0] in player.hand:
+                return group[0]
+    return None
+
+def resolve_gang(game, player, tile):
     for i in range(3):
         player.hand.remove(tile)
     player.exposed_hand.append([tile] * 4)
-    print(f"{tile} formed as Gang!")
+    print(f"{tile} formed as (exposed) Gang!")
+    draw_replacement_tile(game, player)
+
+def resolve_concealed_gang(game, player, tile):
+    for i in range(4):
+        player.hand.remove(tile)
+    player.exposed_hand.append([tile] * 4)
+    print(f"{tile} formed as (concealed) Gang!")
+    draw_replacement_tile(game, player)
+
+def resolve_supplemental_gang(game, player, tile):
+    player.hand.remove(tile)
+    for group in player.exposed_hand:
+        if len(group) == 3 and group[0] == tile:
+            group.append(tile)
+            break
+    print(f"{tile} upgraded to Gang!")
+    draw_replacement_tile(game, player)
+
+def draw_replacement_tile(game, player):
+    if game.wall:
+        tile = game.wall.pop()
+        print(f"Player {player.id} draws replacement tile {tile} after Gang")
+        player.draw_tile(tile)
+        return tile
+    return None
