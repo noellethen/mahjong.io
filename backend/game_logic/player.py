@@ -1,5 +1,6 @@
-from rules import check_win
+from rules import check_win, all_pong, ping_hu
 from bot import smart_discard
+from tiles import sort_tile
 
 class Player:
     def __init__(self, player_id):
@@ -12,6 +13,7 @@ class Player:
 
     def draw_tile(self, tile):
         self.hand.append(tile)
+        self.hand = sort_tile(self.hand)
 
     def discard_tile(self, interactive = False):
         if not self.hand:
@@ -32,12 +34,10 @@ class Player:
             return smart_discard(self.hand) # Bot discard logic
 
     def has_won(self):
-        hand = []
-        for tile in self.hand:
-            hand.append(tile)
-        for tile in self.exposed_hand:
-            hand.append(tile)
-        return check_win(hand) and self.tai != 0
+        full_hand = self.hand.copy()
+        for group in self.exposed_hand:
+            full_hand.extend(group)
+        return check_win(self.hand, self.exposed_hand) and (self.tai != 0 or all_pong(full_hand) or ping_hu(self, full_hand))
     
     def __str__(self):
         return (f"Player {self.id}:\n"

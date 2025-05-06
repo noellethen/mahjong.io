@@ -41,7 +41,7 @@ class Game:
                 choice = input("Gang (g) or Pass (enter): ").strip().lower()
 
                 if choice == 'g':
-                    print(f"Player {responder_id} calls PONG!")
+                    print(f"Player {responder_id} calls GANG!")
                     resolve_gang(self,responder, discarded_tile)
                     self.turn = responder_id
                     return True
@@ -58,19 +58,19 @@ class Game:
                     return True
 
 
-            next_player_id = (discarder_id + 1) % num_players
-            responder = self.players[next_player_id]
+        next_player_id = (discarder_id + 1) % num_players
+        next_player = self.players[next_player_id]
 
-            if can_chi(responder.hand, discarded_tile):
-                print(f"\nPlayer {responder_id}, discarded tile is {discarded_tile}")
-                print(f"Your hand: {responder.hand}")
-                choice = input("Chi (c) or Pass (enter): ").strip().lower()
+        if can_chi(next_player.hand, discarded_tile):
+            print(f"\nPlayer {next_player_id}, discarded tile is {discarded_tile}")
+            print(f"Your hand: {next_player.hand}")
+            choice = input("Chi (c) or Pass (enter): ").strip().lower()
 
-                if choice == 'c':
-                    print(f"Player {responder_id} calls CHI!")
-                    resolve_chi(responder, discarded_tile)
-                    self.turn = responder_id
-                    return True
+            if choice == 'c':
+                print(f"Player {next_player_id} calls CHI!")
+                resolve_chi(next_player, discarded_tile)
+                self.turn = next_player_id
+                return True
 
         return False
 

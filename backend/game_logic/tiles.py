@@ -18,3 +18,27 @@ def generate_full_wall(include_bonus = True):
     if include_bonus:
         wall += generate_bonus_tiles()
     return wall
+
+def sort_tile(hand):
+    # Sort in order of: Bamboo, Characters, Dots, Honors
+    bamboos = []
+    characters = []
+    dots = []
+    honors = []
+
+    for tile in hand:
+        if len(tile) == 2 and tile[1] == 'B':
+            bamboos.append(tile)
+        elif len(tile) == 2 and tile[1] == 'C':
+            characters.append(tile)
+        elif len(tile) == 2 and tile[1] == 'D':
+            dots.append(tile)
+        else:
+            honors.append(tile)
+
+    bamboos.sort(key=lambda x: int(x[0]))
+    characters.sort(key=lambda x: int(x[0]))
+    dots.sort(key=lambda x: int(x[0]))
+    honors.sort()
+
+    return bamboos + characters + dots + honors

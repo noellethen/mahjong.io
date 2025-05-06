@@ -49,12 +49,13 @@ def is_valid_group(tiles):
 
     return False
 
-def check_win(hand, exposed_hand = []):
-    total_sets = len(exposed_hand)
-    remaining = 14 - total_sets * 3
-    if len(hand) != remaining:
-        return False
-    
+def check_win(hand, exposed_hand=[]):
+    total_exposed_tiles = sum(len(group) for group in exposed_hand)  
+    total_tiles = len(hand) + total_exposed_tiles
+
+    if total_tiles != 14:
+        return False  
+
     tile_counts = Counter(hand)
     pairs = [tile for tile, count in tile_counts.items() if count >= 2]
 
@@ -64,7 +65,7 @@ def check_win(hand, exposed_hand = []):
         temp_hand.remove(pair)
         if is_valid_group(sorted(temp_hand)):
             return True
-        
+
     return False
 
 # Tai Calculation
@@ -135,29 +136,29 @@ def ping_hu(player, hand):
 def tile_is_suited(tile):
     return len(tile) == 2 and tile[1] in ['B', 'C', 'D']
 
-def all_chi_only(tiles):
-    if not tiles:
-        return True
+# def all_chi_only(tiles):
+#     if not tiles:
+#         return True
     
-    tiles = sorted(tiles)
-    first = tiles[0]
+#     tiles = sorted(tiles)
+#     first = tiles[0]
 
-    try:
-        num = int(first[0])
-        suit = first[1]
-        second = f"{num+1}{suit}"
-        third = f"{num+2}{suit}"
+#     try:
+#         num = int(first[0])
+#         suit = first[1]
+#         second = f"{num+1}{suit}"
+#         third = f"{num+2}{suit}"
 
-        if second in tiles and third in tiles:
-            reduced = tiles.copy()
-            reduced.remove(first)
-            reduced.remove(second)
-            reduced.remove(third)
-            return all_chi_only(reduced)
-    except:
-        return False
+#         if second in tiles and third in tiles:
+#             reduced = tiles.copy()
+#             reduced.remove(first)
+#             reduced.remove(second)
+#             reduced.remove(third)
+#             return all_chi_only(reduced)
+#     except:
+#         return False
     
-    return False
+#     return False
     
 def calculate_tai(player):
     tai = 0
@@ -221,11 +222,12 @@ def can_concealed_gang(hand):
     return [tile for tile, count in Counter(hand).items() if count == 4]
 
 def can_supplemental_gang(player):
+    upgradeable = []
     for group in player.exposed_hand:
-        if len(group) == 3 and group.count(group[0] == 3):
+        if len(group) == 3 and all(tile == group[0] for tile in group):
             if group[0] in player.hand:
-                return group[0]
-    return None
+                upgradeable.append(group[0])
+    return upgradeable
 
 def resolve_gang(game, player, tile):
     for i in range(3):
