@@ -13,6 +13,8 @@ def handle_bonus_tile(player, tile):
         except ValueError:
             pass
 
+# Check win
+
 def is_valid_group(tiles):
     if not tiles:
         return True
@@ -62,6 +64,8 @@ def check_win(hand):
             return True
         
     return False
+
+# Tai Calculation
 
 def all_pong(hand):
     tile_counts = Counter(hand)
@@ -164,3 +168,55 @@ def calculate_tai(player):
     if ping_hu(player, player.hand):
         tai += 4
     return tai
+
+# Chi/Pong/Gang logic
+
+def can_pong(hand, tile):
+    return hand.count(tile) >= 2
+
+def resolve_pong(player, tile):
+    for i in range(2):
+        player.hand.remove(tile)
+    player.exposed_hand.append([tile] * 3)
+    print(f"{tile} added to exposed hand.")
+
+def find_valid_chis(hand, tile):
+    if len(tile) != 2 or tile[1] not in ['B', 'C', 'D']:
+        return []
+
+    try:
+        num = int(tile[0])
+        suit = tile[1]
+        options = [
+            [f"{num-2}{suit}", f"{num-1}{suit}"],
+            [f"{num-1}{suit}", f"{num+1}{suit}"],
+            [f"{num+1}{suit}", f"{num+2}{suit}"]
+        ]
+        return [chi for chi in options if all(t in hand for t in chi)]
+    except:
+        return []
+
+def can_chi(hand, tile):
+    return bool(find_valid_chis(hand, tile))
+
+def resolve_chi(player, tile):
+    chi_options = find_valid_chis(player.hand, tile)
+    if not chi_options:
+        return
+
+    chi = chi_options[0]  
+    for t in chi:
+        player.hand.remove(t)
+    meld = chi + [tile]
+    meld.sort()
+    player.exposed_hand.append(meld)
+    print(f"{meld} formed as Chi!")
+
+def can_gang(hand, tile):
+    return hand.count(tile) == 3
+
+def resolve_gang(player, tile):
+    for i in range(3):
+        player.hand.remove(tile)
+    player.exposed_hand.append([tile] * 4)
+    print(f"{tile} formed as Gang!")
