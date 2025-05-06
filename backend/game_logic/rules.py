@@ -136,29 +136,29 @@ def ping_hu(player, hand):
 def tile_is_suited(tile):
     return len(tile) == 2 and tile[1] in ['B', 'C', 'D']
 
-# def all_chi_only(tiles):
-#     if not tiles:
-#         return True
+def all_chi_only(tiles):
+    if not tiles:
+        return True
     
-#     tiles = sorted(tiles)
-#     first = tiles[0]
+    tiles = sorted(tiles)
+    first = tiles[0]
 
-#     try:
-#         num = int(first[0])
-#         suit = first[1]
-#         second = f"{num+1}{suit}"
-#         third = f"{num+2}{suit}"
+    try:
+        num = int(first[0])
+        suit = first[1]
+        second = f"{num+1}{suit}"
+        third = f"{num+2}{suit}"
 
-#         if second in tiles and third in tiles:
-#             reduced = tiles.copy()
-#             reduced.remove(first)
-#             reduced.remove(second)
-#             reduced.remove(third)
-#             return all_chi_only(reduced)
-#     except:
-#         return False
+        if second in tiles and third in tiles:
+            reduced = tiles.copy()
+            reduced.remove(first)
+            reduced.remove(second)
+            reduced.remove(third)
+            return all_chi_only(reduced)
+    except:
+        return False
     
-#     return False
+    return False
     
 def calculate_tai(player):
     tai = 0
