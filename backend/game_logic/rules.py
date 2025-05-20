@@ -132,4 +132,55 @@ def resolve_chi(player, tile):
 
 # To implement: Gang logic - consists of concealed, add-on or Pong-style gang, then drawing replacement tile
 
+def can_gang(hand, tile):
+    return hand.count(tile) == 3
+
+def resolve_gang(game, player, tile):
+    for i in range(3):
+        player.hand.remove(tile)
+    player.exposed_hand.append([tile] * 4)
+    print(f"{tile} formed as Gang!")
+    draw_replacement_tile(game, player)
+
+def can_concealed_gang(hand):
+    # Find all tiles in the hand that appear exactly 4 times
+    tiles_with_four_copies = []
+
+    tile_counts = Counter(hand)
+    for tile, count in tile_counts.items():
+        if count == 4:
+            tiles_with_four_copies.append(tile)
+    return tiles_with_four_copies  
+
+def resolve_concealed_gang(game, player, tile):
+    for i in range(4):
+        player.hand.remove(tile)
+    player.exposed_hand.append([tile] * 4)
+    print(f"{tile} formed as (concealed) Gang!")
+
+def can_addon_gang(player):
+    upgradeable = []
+    for group in player.exposed_hand:
+        if len(group) == 3 and all(tile == group[0] for tile in group): # Check for Pong sets
+            if group[0] in player.hand:
+                upgradeable.append(group[0])
+    return upgradeable
+
+def resolve_addon_gang(game, player, tile):
+    player.hand.remove(tile)
+    for group in player.exposed_hand:
+        if len(group) == 3 and group[0] == tile:
+            group.append(tile)
+            break
+    print(f"{tile} upgraded to Gang!")
+    draw_replacement_tile(game, player)
+
+def draw_replacement_tile(game, player):
+    if game.wall:
+        tile = game.wall.pop()
+        print(f"Player {player.id} draws replacement tile {tile} after Gang")
+        player.draw_tile(tile)
+        return tile
+    return None
+
 # To implement: Tai calculation

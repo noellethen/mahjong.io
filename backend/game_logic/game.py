@@ -9,8 +9,8 @@ from player import Player
 from tiles import generate_full_wall, sort_tiles
 from rules import (
     handle_bonus_tile,
-    can_chi, can_pong,
-    resolve_chi, resolve_pong
+    can_chi, can_pong, can_gang, can_concealed_gang, can_addon_gang,
+    resolve_chi, resolve_pong, resolve_gang, resolve_concealed_gang, resolve_addon_gang
 )
 
 class Game:
@@ -54,6 +54,20 @@ class Game:
                 
                 print(f"Player {responder_id} calls PONG!")
                 resolve_pong(responder, discarded_tile)
+                self.turn = responder_id
+                return True
+            
+            if can_gang(responder.hand, discarded_tile):
+                if interactive:
+                    print(f"\nPlayer {responder_id}, discarded tile is {discarded_tile}")
+                    print(f"Your hand: {responder.hand}")
+                    choice = input("Gang (g) or Pass (enter): ").strip().lower()
+
+                    if choice != 'g':
+                        return
+                    
+                print(f"Player {responder_id} calls GANG!")
+                resolve_gang(self,responder, discarded_tile)
                 self.turn = responder_id
                 return True
             
@@ -102,7 +116,10 @@ class Game:
                 while drawn_tile.startswith("Flower") or drawn_tile.startswith("Season") or drawn_tile in ['Cat', 'Mouse', 'Chicken', 'Centipede']:
                     handle_bonus_tile(current_player, drawn_tile)
                     print(f"Player {current_player.id} draws bonus tile {drawn_tile}, replacing...")
-                    drawn_tile = self.wall.pop()
+                    if self.wall:
+                        drawn_tile = self.wall.pop()
+                    else: 
+                        break
 
                 current_player.draw_tile(drawn_tile)
 
@@ -115,6 +132,28 @@ class Game:
                 drawn_tile = None  
 
             interactive = (current_player.id == self.interactive_player_id)
+
+            concealed_tiles = can_concealed_gang(current_player.hand)
+            if concealed_tiles:
+                print(f"\nPlayer {current_player.id}, you can declare a concealed Gang with: {concealed_tiles}")
+                print(f"Your hand: {current_player.hand}")
+                if current_player.id == self.interactive_player_id:
+                    choice = input("Declare concealed Gang? Enter tile or press Enter to skip: ")
+                    if choice in concealed_tiles:
+                        resolve_concealed_gang(self, current_player, choice)
+                else:
+                    resolve_concealed_gang(self, current_player, concealed_tiles[0])
+
+            addon_tiles = can_addon_gang(current_player)
+            if addon_tiles:
+                print(f"\nPlayer {current_player.id}, you can declare upgrade to Gang with: {addon_tiles}")
+                print(f"Your hand: {current_player.hand}")
+                if current_player.id == self.interactive_player_id:
+                    choice = input("Upgrade to Gang? Enter tile or press Enter to skip: ")
+                    if choice in addon_tiles:
+                        resolve_addon_gang(self, current_player, choice)
+                else:
+                    resolve_addon_gang(self, current_player, addon_tiles[0])
 
             discarded_tile = current_player.discard_tile(interactive)
             current_player.hand = sort_tiles(current_player.hand)  
