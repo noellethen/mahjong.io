@@ -64,7 +64,7 @@ def check_win(hand, exposed_hand):
     total_exposed = sum(len(group) for group in exposed_hand)
     total_tiles = len(hand) + total_exposed
 
-    if total_tiles != 14:
+    if total_tiles < 14:
         return False
 
     tile_counts = Counter(hand)

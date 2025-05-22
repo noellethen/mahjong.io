@@ -41,6 +41,7 @@ class Game:
         responders = players[discarder_idx + 1:] + players[:discarder_idx]
 
         for responder in responders:
+            print(f"[DEBUG] Player {responder.id} checking win with: {responder.hand + [discarded_tile]}")
             temp_hand = responder.hand.copy()
             temp_hand.append(discarded_tile)
             if check_win(temp_hand, responder.exposed_hand):
@@ -134,11 +135,11 @@ class Game:
                 current_player.draw_tile(drawn_tile)
 
                 # Check for win (after drawing tile)
-                if current_player.has_won():
-                    winner = current_player
-                    calculate_tai(current_player)
-                    print(f"Player {current_player.id} wins after drawing {drawn_tile} with Tai: {current_player.tai}!")
-                    break
+                # if current_player.has_won():
+                #     winner = current_player
+                #     calculate_tai(current_player)
+                #     print(f"Player {current_player.id} wins after drawing {drawn_tile} with Tai: {current_player.tai}!")
+                #     break
             else:
                 drawn_tile = None  
 
@@ -176,7 +177,7 @@ class Game:
                 print(f"Turn {self.turn + 1}: Player {current_player.id} (claimed tile) discards {discarded_tile}")
                 print(current_player)
 
-            if self.interaction(discarded_tile, current_player.id):
+            while self.interaction(discarded_tile, current_player.id):
                 # Logic for discarding tiles after claiming
 
                 claimed_tile = True
@@ -188,14 +189,14 @@ class Game:
 
                 print(f"Turn {self.turn + 1}: Player {current_player.id} (claimed tile) discards {discarded_tile}")
 
-                if self.interaction(discarded_tile, current_player.id):
-                    claimed_tile = True
-                    continue
-                else:
-                    claimed_tile = False
-                continue
-            else:
-                claimed_tile = False
+                # if self.interaction(discarded_tile, current_player.id):
+                #     claimed_tile = True
+                #     continue
+                # else:
+                #     claimed_tile = False
+                # continue
+            # else:
+            claimed_tile = False
 
             self.turn += 1
 
