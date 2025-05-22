@@ -41,14 +41,14 @@ class Game:
         responders = players[discarder_idx + 1:] + players[:discarder_idx]
 
         for responder in responders:
-            print(f"[DEBUG] Player {responder.id} checking win with: {responder.hand + [discarded_tile]}")
+            print(f"[DEBUG] Player {responder.id} checking win with: {responder.hand + [discarded_tile] + responder.exposed_hand}")
             temp_hand = responder.hand.copy()
             temp_hand.append(discarded_tile)
             if check_win(temp_hand, responder.exposed_hand):
                 self.winner = responder
                 calculate_tai(responder)
-                print(f"Player {responder.id} wins by claiming {discarded_tile} with {responder.tai} Tai!")
-                return True
+                print(f"Player {responder.id} wins by claiming {discarded_tile} from Player {discarder_id} with {responder.tai} Tai!")
+                break
 
         for responder in responders:
             interactive = (responder.id == self.interactive_player_id)
@@ -135,11 +135,11 @@ class Game:
                 current_player.draw_tile(drawn_tile)
 
                 # Check for win (after drawing tile)
-                # if current_player.has_won():
-                #     winner = current_player
-                #     calculate_tai(current_player)
-                #     print(f"Player {current_player.id} wins after drawing {drawn_tile} with Tai: {current_player.tai}!")
-                #     break
+                if current_player.has_won():
+                    winner = current_player
+                    calculate_tai(current_player)
+                    print(f"Player {current_player.id} wins after drawing {drawn_tile} with Tai: {current_player.tai}!")
+                    break
             else:
                 drawn_tile = None  
 
