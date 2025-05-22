@@ -8,7 +8,7 @@ import random
 from player import Player
 from tiles import generate_full_wall, sort_tiles
 from rules import (
-    handle_bonus_tile, calculate_tai, check_win_discard,
+    handle_bonus_tile, calculate_tai, check_win,
     can_chi, can_pong, can_gang, can_concealed_gang, can_addon_gang,
     resolve_chi, resolve_pong, resolve_gang, resolve_concealed_gang, resolve_addon_gang
 )
@@ -38,41 +38,48 @@ class Game:
     def interaction(self, discarded_tile, discarder_id):
         discarder_idx = discarder_id - 1
         players = self.players
-        
         responders = players[discarder_idx + 1:] + players[:discarder_idx]
 
         for responder in responders:
-            responder_id = responder.id
-            interactive = (responder_id == self.interactive_player_id)
+            temp_hand = responder.hand.copy()
+            temp_hand.append(discarded_tile)
+            if check_win(temp_hand, responder.exposed_hand):
+                self.winner = responder
+                calculate_tai(responder)
+                print(f"Player {responder.id} wins by claiming {discarded_tile} with {responder.tai} Tai!")
+                return True
+
+        for responder in responders:
+            interactive = (responder.id == self.interactive_player_id)
 
             # Anyone can Pong/Gang
 
             if can_gang(responder.hand, discarded_tile):
                 if interactive:
-                    print(f"\nPlayer {responder_id}, discarded tile is {discarded_tile}")
+                    print(f"\nPlayer {responder.id}, discarded tile is {discarded_tile}")
                     print(f"Your hand: {responder.hand}")
                     choice = input("Gang (g) or Pass (enter): ").strip().lower()
 
                     if choice != 'g':
                         continue
                     
-                print(f"Player {responder_id} calls GANG!")
+                print(f"Player {responder.id} calls GANG!")
                 resolve_gang(self,responder, discarded_tile)
-                self.turn = responder_id
+                self.turn = responder.id
                 return True
 
             if can_pong(responder.hand, discarded_tile):
                 if interactive:
-                    print(f"\nPlayer {responder_id}, discarded tile is {discarded_tile}")
+                    print(f"\nPlayer {responder.id}, discarded tile is {discarded_tile}")
                     print(f"Your hand: {responder.hand}")
                     choice = input("Pong (p) or Pass (enter): ").strip().lower()
 
                     if choice != 'p':
                         continue
                 
-                print(f"Player {responder_id} calls PONG!")
+                print(f"Player {responder.id} calls PONG!")
                 resolve_pong(responder, discarded_tile)
-                self.turn = responder_id
+                self.turn = responder.id
                 return True
             
             # Only next player can Chi
@@ -160,13 +167,6 @@ class Game:
                     resolve_addon_gang(self, current_player, addon_tiles[0])
 
             discarded_tile = current_player.discard_tile(interactive)
-            
-            # Check win here (WIP)
-            if check_win_discard(self, current_player, discarded_tile):
-                winner = check_win_discard(current_player, discarded_tile)
-                calculate_tai(winner)
-                print(f"Player {winner.id} wins after claiming {discarded_tile} with Tai: {winner.tai}!")
-                break
 
             current_player.hand = sort_tiles(current_player.hand)  
             if drawn_tile:
