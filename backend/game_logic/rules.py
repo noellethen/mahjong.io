@@ -111,6 +111,7 @@ def find_valid_chis(hand, tile):
         for chi in options:
             if all(tile in hand for tile in chi):
                 valid_chi_options.append(chi)
+        return valid_chi_options
     except ValueError:
         return []
 
@@ -178,9 +179,39 @@ def resolve_addon_gang(game, player, tile):
 def draw_replacement_tile(game, player):
     if game.wall:
         tile = game.wall.pop()
+
+        while tile.startswith("Flower") or tile.startswith("Season") or tile in ['Cat', 'Mouse', 'Chicken', 'Centipede']:
+            handle_bonus_tile(player, tile)
+            print(f"Player {player.id} draws bonus tile {tile}, replacing...")
+            tile = game.wall.pop()
+
         print(f"Player {player.id} draws replacement tile {tile} after Gang")
         player.draw_tile(tile)
         return tile
     return None
 
 # To implement: Tai calculation
+
+def all_pong(hand, exposed_hand):
+    tile_count = Counter(hand)
+    triplet_count = 0
+    pair_count = 0
+
+    for tile, count in tile_count.items():
+        if count == 2:
+            pair_count += 1
+        elif count == 3:
+            triplet_count += 1
+        else:
+            return False
+        
+    for group in exposed_hand:
+        if len(group) == 3 and all(tile == group[0] for tile in group) or len(group) == 4 and all(tile == group[0] for tile in group):
+            triplet_count += 1
+
+    return triplet_count == 4 and pair_count == 1
+
+def calculate_tai(player):
+    if all_pong(player.hand, player.exposed_hand):
+        player.tai += 2
+    pass
