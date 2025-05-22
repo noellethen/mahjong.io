@@ -82,6 +82,19 @@ def check_win(hand, exposed_hand):
 
     return False
 
+def check_win_discard(game, player, discarded_tile):
+    player_idx = player.id - 1
+    players = game.players
+    responders = players[player_idx + 1:] + players[:player_idx]
+
+    for responder in responders:
+        temp_hand = responder.hand.copy()
+        temp_hand.append(discarded_tile)
+        if check_win(temp_hand, responder.exposed_hand):
+            responder.hand.append(discarded_tile)
+            return responder
+    return None
+
 # Chi/Pong logic
 
 def can_pong(hand, tile):
@@ -158,6 +171,7 @@ def resolve_concealed_gang(game, player, tile):
         player.hand.remove(tile)
     player.exposed_hand.append([tile] * 4)
     print(f"{tile} formed as (concealed) Gang!")
+    draw_replacement_tile(game, player)
 
 def can_addon_gang(player):
     upgradeable = []

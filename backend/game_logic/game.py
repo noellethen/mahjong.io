@@ -8,7 +8,7 @@ import random
 from player import Player
 from tiles import generate_full_wall, sort_tiles
 from rules import (
-    handle_bonus_tile, calculate_tai,
+    handle_bonus_tile, calculate_tai, check_win_discard,
     can_chi, can_pong, can_gang, can_concealed_gang, can_addon_gang,
     resolve_chi, resolve_pong, resolve_gang, resolve_concealed_gang, resolve_addon_gang
 )
@@ -137,12 +137,6 @@ class Game:
 
             interactive = (current_player.id == self.interactive_player_id)
 
-            if current_player.has_won():
-                winner = current_player
-                calculate_tai(current_player)
-                print(f"Player {current_player.id} wins after claiming {discarded_tile} with Tai: {current_player.tai}!")
-                break
-
             concealed_tiles = can_concealed_gang(current_player.hand)
             if concealed_tiles:
                 print(f"\nPlayer {current_player.id}, you can declare a concealed Gang with: {concealed_tiles}")
@@ -166,11 +160,21 @@ class Game:
                     resolve_addon_gang(self, current_player, addon_tiles[0])
 
             discarded_tile = current_player.discard_tile(interactive)
+            
+            # Check win here (WIP)
+            if check_win_discard(self, current_player, discarded_tile):
+                winner = check_win_discard(current_player, discarded_tile)
+                calculate_tai(winner)
+                print(f"Player {winner.id} wins after claiming {discarded_tile} with Tai: {winner.tai}!")
+                break
+
             current_player.hand = sort_tiles(current_player.hand)  
             if drawn_tile:
                 print(f"Turn {self.turn + 1}: Player {current_player.id} draws {drawn_tile}, discards {discarded_tile}")
+                print(current_player)
             else:
                 print(f"Turn {self.turn + 1}: Player {current_player.id} (claimed tile) discards {discarded_tile}")
+                print(current_player)
 
             if self.interaction(discarded_tile, current_player.id):
                 # Logic for discarding tiles after claiming
