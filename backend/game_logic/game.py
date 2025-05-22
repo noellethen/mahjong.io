@@ -41,7 +41,6 @@ class Game:
         responders = players[discarder_idx + 1:] + players[:discarder_idx]
 
         for responder in responders:
-            print(f"[DEBUG] Player {responder.id} checking win with: {responder.hand + [discarded_tile] + responder.exposed_hand}")
             temp_hand = responder.hand.copy()
             temp_hand.append(discarded_tile)
             if check_win(temp_hand, responder.exposed_hand):
