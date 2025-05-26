@@ -4,7 +4,7 @@ import Signup from "./components/Signup";
 import Signin from "./components/Signin";
 import Homepage from "./components/Homepage";
 import Gamemode from "./components/Gamemode";
-import ShopPage from "./components/shop";
+import ShopPage from "./components/Shop";
 import CustomisePage from "./components/Customise";
 
 export const router = createBrowserRouter([
