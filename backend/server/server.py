@@ -4,14 +4,22 @@ from flask_cors import CORS
 app = Flask(__name__)
 cors = CORS(app, origins='*')
 
+#Login Page
 @app.route("/")
 def serve_login():
     return send_from_directory(app.template_folder, 'index.html')
+
+#Gamemode Page
+@app.route('/api/game_state')
+def game_state():
+    dummy = ["1m", "3p", "EAST", "5s", "RED", "GREEN"]
+    return jsonify(dummy)
 
 @app.route('/gamemode')
 def serve_gamemode():
     return send_from_directory(app.template_folder, 'gamemode.html')
 
+#Quizmode Page
 @app.route('/quizmode')
 def serve_quizmode():
     return send_from_directory(app.template_folder, 'quizmode.html')
