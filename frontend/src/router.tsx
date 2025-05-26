@@ -1,0 +1,19 @@
+import { createBrowserRouter } from "react-router-dom";
+import App from "./App";
+import Signup from "./components/Signup";
+import Signin from "./components/Signin";
+import Homepage from "./components/Homepage";
+import Gamemode from "./components/Gamemode";
+import ShopPage from "./components/shop";
+import CustomisePage from "./components/Customise";
+
+export const router = createBrowserRouter([
+  { path: "/", element: <App /> },
+  { path: "/signup", element: <Signup /> },
+  { path: "/signin", element: <Signin /> },
+  { path: "/homepage", element: <Homepage /> },
+  { path: "/gamemode", element: <Gamemode /> },
+  { path: "/shop", element: <ShopPage /> },
+  { path: "/customise", element: <CustomisePage /> },
+  { path: "*", element: <Homepage /> },
+]);
