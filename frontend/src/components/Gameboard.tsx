@@ -19,12 +19,24 @@ function Gameboard() {
     if (loading) return <div>Loading game state...</div>
     if (error)   return <div className="text-red-500">Error: {error}</div>
 
-    return (
-    <div className="grid grid-cols-6 gap-2 p-4">
-      {tiles.map((tile, i) => (
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '12px',           // space between tiles
+        alignItems: 'center',  // vertically center each tile
+      }}
+    >
+      {tiles.map((tile, idx) => (
         <div
-          key={i}
-          className="border rounded p-2 flex items-center justify-center"
+          key={idx}
+          style={{
+            border: '1px solid #333',
+            borderRadius: '4px',
+            padding: '8px',
+            textAlign: 'center',
+          }}
         >
           {tile}
         </div>

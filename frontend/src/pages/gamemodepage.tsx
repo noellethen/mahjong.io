@@ -2,7 +2,15 @@ import Gameboard from "../components/Gameboard"
 
 function GameModePage() {
   return (
-    <div className="h-screen flex items-center justify-center">
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+      }}
+    >
       <Gameboard />
     </div>
   )
