@@ -19,7 +19,7 @@ function Homepage() {
   return (
     <>
       <div>
-        <h2>Welcome, {session?.email}</h2>
+        <h2>Welcome, {session?.user?.email}</h2>
       </div>
       <div className="h-screen flex items-center justify-center">
         <div className="flex flex-col space-y-4 w-40">
