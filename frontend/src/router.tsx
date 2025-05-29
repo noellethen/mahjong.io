@@ -6,12 +6,20 @@ import Homepage from "./components/Homepage";
 import Gamemode from "./components/Gamemode";
 import ShopPage from "./components/Shop";
 import CustomisePage from "./components/Customise";
+import PrivateRoute from "./components/PrivateRoute";
 
 export const router = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/signup", element: <Signup /> },
   { path: "/signin", element: <Signin /> },
-  { path: "/homepage", element: <Homepage /> },
+  {
+    path: "/homepage",
+    element: (
+      <PrivateRoute>
+        <Homepage />{" "}
+      </PrivateRoute>
+    ),
+  },
   { path: "/gamemode", element: <Gamemode /> },
   { path: "/shop", element: <ShopPage /> },
   { path: "/customise", element: <CustomisePage /> },
