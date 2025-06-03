@@ -10,10 +10,11 @@ def serve_login():
     return send_from_directory(app.template_folder, 'index.html')
 
 #Gamemode Page
-@app.route('/api/game_state')
+@app.route("/api/game_state")
 def game_state():
-    dummy = ["1m", "3p", "EAST", "5s", "RED", "GREEN"]
-    return jsonify(dummy)
+    exposed = ["1B", "2B", "3B"]
+    hand    = ["RED", "RED", "GREEN"]
+    return jsonify({"exposed": exposed, "hand": hand})
 
 @app.route('/gamemode')
 def serve_gamemode():
