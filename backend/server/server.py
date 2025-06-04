@@ -1,13 +1,8 @@
-from flask import Flask, send_from_directory, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
 cors = CORS(app, origins='*')
-
-#Login Page
-@app.route("/")
-def serve_login():
-    return send_from_directory(app.template_folder, 'index.html')
 
 #Gamemode Page
 @app.route("/api/game_state")
@@ -16,14 +11,14 @@ def game_state():
     hand    = ["RED", "RED", "GREEN"]
     return jsonify({"exposed": exposed, "hand": hand})
 
-@app.route('/gamemode')
-def serve_gamemode():
-    return send_from_directory(app.template_folder, 'gamemode.html')
+@app.route("/api/select_tile", methods=["POST"])
+def select_tile():
+    data = request.get_json()
+    selected_tile = data.get("tile")
 
-#Quizmode Page
-@app.route('/quizmode')
-def serve_quizmode():
-    return send_from_directory(app.template_folder, 'quizmode.html')
+    print(f"Player selected tile: {selected_tile}")
+
+    return jsonify({"message": "Tile received", "tile": selected_tile})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

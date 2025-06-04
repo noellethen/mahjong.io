@@ -8,7 +8,6 @@ import { AuthContextProvider } from "./context/AuthContext.tsx";
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <div className="min-h-screen flex flex-col items-center">
-      <h1 className="pt-4 text-3xl">mahjong.io</h1>
       <AuthContextProvider>
         <RouterProvider router={router} />
       </AuthContextProvider>

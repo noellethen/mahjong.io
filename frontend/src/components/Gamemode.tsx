@@ -7,9 +7,9 @@ type GameStateResponse = {
 
 function Gamemode() {
   const [exposedTiles, setExposedTiles] = useState<string[]>([]);
-  const [handTiles, setHandTiles]       = useState<string[]>([]);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState<string | null>(null);
+  const [handTiles, setHandTiles] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/game_state")
@@ -29,17 +29,38 @@ function Gamemode() {
       });
   }, []);
 
+  const handleTileClick = (tile: string) => {
+    fetch("/api/select_tile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tile }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Tile sent to backend: ", data);
+
+        setHandTiles((prevTiles) => prevTiles.filter((t) => t !== tile));
+        setExposedTiles((prevTiles) => prevTiles.filter((t) => t !== tile));
+      })
+      .catch((err) => {
+        console.error("Error sending tile: ", err);
+      });
+  };
+
   if (loading) return <div>Loading game state...</div>;
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="h-screen flex flex-col items-center justify-center space-y-6">
       {/* Top row: exposed tiles */}
       <div className="flex flex-row gap-3 items-center justify-center">
         {exposedTiles.map((tile, idx) => (
           <div
             key={`exposed-${idx}`}
-            className="border border-gray-800 rounded-md px-3 py-2 text-center"
+            className="bg-gray-500 border-2 border-transparent hover:cursor-pointer hover:border-blue-500 text-white py-2 px-4 rounded-md transition-colors duration-300"
+            onClick={() => handleTileClick(tile)}
           >
             {tile}
           </div>
@@ -51,7 +72,8 @@ function Gamemode() {
         {handTiles.map((tile, idx) => (
           <div
             key={`hand-${idx}`}
-            className="border border-gray-800 rounded-md px-3 py-2 text-center"
+            className="bg-gray-500 border-2 border-transparent hover:cursor-pointer hover:border-blue-500 text-white py-2 px-4 rounded-md transition-colors duration-300"
+            onClick={() => handleTileClick(tile)}
           >
             {tile}
           </div>
