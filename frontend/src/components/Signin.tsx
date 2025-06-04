@@ -10,7 +10,6 @@ const Signin = () => {
 
   const { session, signInUser } = UserAuth();
   const navigate = useNavigate();
-  console.log(session);
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -34,13 +33,14 @@ const Signin = () => {
 
   return (
     <div>
+      <h1 className="pt-4 text-3xl">mahjong.io</h1>
       <form onSubmit={handleSignin} className="max-w-md m-auto pt-24">
         <h2 className="font-bold pb-2">Sign in</h2>
         <div className="flex flex-col py-4">
           <input
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            className="p-3 mt-6 bg-gray-950"
+            className="p-3 mt-6 bg-gray-950 hover:border hover:cursor-pointer"
             type="email"
             name=""
             id=""
@@ -48,7 +48,7 @@ const Signin = () => {
           <input
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            className="p-3 mt-6 bg-gray-950"
+            className="p-3 mt-6 bg-gray-950 hover:border hover:cursor-pointer"
             type="password"
             name=""
             id=""

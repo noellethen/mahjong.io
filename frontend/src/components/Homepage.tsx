@@ -17,10 +17,11 @@ function Homepage() {
 
   return (
     <>
-      <div>
-        <h2>Welcome, {session?.user?.email}</h2>
-      </div>
-      <div className="h-screen flex items-center justify-center">
+      <div className="h-screen flex flex-col items-center justify-center space-y-6">
+        <h2 className="text-2xl font-semibold">
+          Welcome, {session?.user?.email}
+        </h2>
+
         <div className="flex flex-col space-y-4 w-40">
           <button
             onClick={() => navigate("/gamemode")}
@@ -43,11 +44,10 @@ function Homepage() {
             Customise
           </button>
         </div>
-      </div>
-      <div>
+
         <p
           onClick={handleSignOut}
-          className="hover:cursor-pointer border inline-block px-4 py-3 mt-4"
+          className="rounded-md hover:cursor-pointer hover:font-semibold inline-block px-4 py-3 mt-4"
         >
           Sign Out
         </p>
