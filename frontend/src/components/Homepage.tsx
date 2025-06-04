@@ -29,6 +29,7 @@ function Homepage() {
             <button
               onClick={() => navigate("/gamemode")}
               className="w-full rounded-md border px-4 py-2"
+              style={{ backgroundColor: "goldenrod" }}
             >
               Play
             </button>
@@ -36,6 +37,7 @@ function Homepage() {
             <button
               onClick={() => navigate("/shop")}
               className="w-full rounded-md border px-4 py-2"
+              style={{ backgroundColor: "goldenrod" }}
             >
               Shop
             </button>
@@ -43,6 +45,7 @@ function Homepage() {
             <button
               onClick={() => navigate("/customise")}
               className="w-full rounded-md border px-4 py-2"
+              style={{ backgroundColor: "goldenrod" }}
             >
               Customise
             </button>
