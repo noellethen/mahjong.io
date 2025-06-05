@@ -8,7 +8,7 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { session, signUpNewUser } = UserAuth();
+  const { session, signUpNewUser, signInWithGoogle } = UserAuth();
   const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
@@ -31,12 +31,20 @@ const Signup = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      setError("Google sign-in failed. Please try again.");
+    }
+  };
+
   return (
     <div>
       <h1 className="pt-4 text-3xl">mahjong.io</h1>
       <form onSubmit={handleSignUp} className="max-w-md m-auto pt-24">
         <h2 className="font-bold pb-2">Sign up</h2>
-        <div className="flex flex-col py-4">
+        <div className="flex flex-col">
           <input
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -56,9 +64,21 @@ const Signup = () => {
           <button type="submit" disabled={loading} className="mt-6 w-full">
             Sign Up
           </button>
+          <div className="my-4 flex items-center">
+            <hr className="flex-1 border-t-2 border-gray-400" />
+            <span className="mx-4 text-gray-500">or</span>
+            <hr className="flex-1 border-t-2 border-gray-400" />
+          </div>
+          <button
+            onClick={handleGoogleSignIn}
+            type="button"
+            className="w-full bg-red-500 text-white rounded"
+          >
+            Sign in with Google
+          </button>
           {error && <p className="text-red-600 text-center pt-4">{error}</p>}
         </div>
-        <p>
+        <p className="py-4">
           Already have an account? <Link to="/signin">Sign in!</Link>
         </p>
       </form>

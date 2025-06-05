@@ -8,7 +8,7 @@ const Signin = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { session, signInUser } = UserAuth();
+  const { session, signInUser, signInWithGoogle } = UserAuth();
   const navigate = useNavigate();
 
   const handleSignin = async (e) => {
@@ -31,12 +31,20 @@ const Signin = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      setError("Google sign-in failed. Please try again.");
+    }
+  };
+
   return (
     <div>
       <h1 className="pt-4 text-3xl">mahjong.io</h1>
       <form onSubmit={handleSignin} className="max-w-md m-auto pt-24">
         <h2 className="font-bold pb-2">Sign in</h2>
-        <div className="flex flex-col py-4">
+        <div className="flex flex-col">
           <input
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -54,11 +62,28 @@ const Signin = () => {
             id=""
           />
           <button type="submit" disabled={loading} className="mt-6 w-full">
-            Sign In
+            Sign in
           </button>
           {error && <p className="text-red-600 text-center pt-4">{error}</p>}
         </div>
-        <p>
+        <div className="my-4 flex items-center">
+          <hr className="flex-1 border-t-2 border-gray-400" />
+          <span className="mx-4 text-gray-500">or</span>
+          <hr className="flex-1 border-t-2 border-gray-400" />
+        </div>
+        <button
+          onClick={handleGoogleSignIn}
+          type="button"
+          className="w-full bg-red-500 text-white rounded"
+        >
+          <img
+            src="https://commons.wikimedia.org/wiki/File:Google_%22G%22_logo.svg"
+            alt="Google Logo"
+            className="w-5 h-5"
+          />
+          <span>Sign in with Google</span>
+        </button>
+        <p className="py-4">
           Don't have an account? <Link to="/signup">Sign up!</Link>
         </p>
       </form>
