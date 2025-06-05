@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
 
@@ -10,6 +10,12 @@ const Signup = () => {
 
   const { session, signUpNewUser, signInWithGoogle } = UserAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session) {
+      navigate("/homepage");
+    }
+  }, [session, navigate]);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -36,6 +42,8 @@ const Signup = () => {
       await signInWithGoogle();
     } catch (err) {
       setError("Google sign-in failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 

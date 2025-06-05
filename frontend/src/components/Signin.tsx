@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
 
@@ -10,6 +10,12 @@ const Signin = () => {
 
   const { session, signInUser, signInWithGoogle } = UserAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session) {
+      navigate("/homepage");
+    }
+  }, [session, navigate]);
 
   const handleSignin = async (e) => {
     e.preventDefault();
@@ -36,6 +42,8 @@ const Signin = () => {
       await signInWithGoogle();
     } catch (err) {
       setError("Google sign-in failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,11 +84,6 @@ const Signin = () => {
           type="button"
           className="w-full bg-red-500 text-white rounded"
         >
-          <img
-            src="https://commons.wikimedia.org/wiki/File:Google_%22G%22_logo.svg"
-            alt="Google Logo"
-            className="w-5 h-5"
-          />
           <span>Sign in with Google</span>
         </button>
         <p className="py-4">
