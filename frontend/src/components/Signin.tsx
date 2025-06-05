@@ -82,8 +82,10 @@ const Signin = () => {
         <button
           onClick={handleGoogleSignIn}
           type="button"
-          className="w-full bg-red-500 text-white rounded"
+          className="w-full bg-red-500 text-black rounded flex items-center justify-center space-x-2"
+          style={{ backgroundColor: "white" }}
         >
+          <img src="/Google.png" alt="Google Logo" className="w-7 h-7" />
           <span>Sign in with Google</span>
         </button>
         <p className="py-4">

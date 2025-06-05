@@ -80,9 +80,11 @@ const Signup = () => {
           <button
             onClick={handleGoogleSignIn}
             type="button"
-            className="w-full bg-red-500 text-white rounded"
+            className="w-full bg-red-500 text-black rounded flex items-center justify-center space-x-2"
+            style={{ backgroundColor: "white" }}
           >
-            Sign in with Google
+            <img src="/Google.png" alt="Google Logo" className="w-7 h-7" />
+            <span>Sign in with Google</span>
           </button>
           {error && <p className="text-red-600 text-center pt-4">{error}</p>}
         </div>
