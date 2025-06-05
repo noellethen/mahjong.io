@@ -7,7 +7,7 @@ import { AuthContextProvider } from "./context/AuthContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <div className="min-h-screen flex flex-col items-center">
+    <div className="min-h-screen flex flex-col items-center justify-between">
       <AuthContextProvider>
         <RouterProvider router={router} />
       </AuthContextProvider>
