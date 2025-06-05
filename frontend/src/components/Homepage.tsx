@@ -1,3 +1,4 @@
+import React from "react";
 import { UserAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -17,40 +18,46 @@ function Homepage() {
 
   return (
     <>
-      <div className="h-screen flex flex-col items-center justify-center space-y-6">
-        <h2 className="text-2xl font-semibold">
-          Welcome, {session?.user?.email}
-        </h2>
+      <div className="full-screen-component min-h-screen bg-[url('/Homepage.png')] bg-cover bg-no-repeat bg-center">
+        <div className="h-screen flex flex-col items-center justify-center space-y-6">
+          <h1 className="pt-4 text-3xl font-bold">mahjong.io</h1>
+          <h2 className="text-2xl font-semibold">
+            Welcome, {session?.user?.email}
+          </h2>
 
-        <div className="flex flex-col space-y-4 w-40">
-          <button
-            onClick={() => navigate("/gamemode")}
-            className="w-full rounded-md border px-4 py-2"
-          >
-            Play
-          </button>
+          <div className="flex flex-col space-y-4 w-40">
+            <button
+              onClick={() => navigate("/gamemode")}
+              className="w-full rounded-md border px-4 py-2"
+              style={{ backgroundColor: "goldenrod" }}
+            >
+              Play
+            </button>
 
-          <button
-            onClick={() => navigate("/shop")}
-            className="w-full rounded-md border px-4 py-2"
-          >
-            Shop
-          </button>
+            <button
+              onClick={() => navigate("/shop")}
+              className="w-full rounded-md border px-4 py-2"
+              style={{ backgroundColor: "goldenrod" }}
+            >
+              Shop
+            </button>
 
-          <button
-            onClick={() => navigate("/customise")}
-            className="w-full rounded-md border px-4 py-2"
+            <button
+              onClick={() => navigate("/customise")}
+              className="w-full rounded-md border px-4 py-2"
+              style={{ backgroundColor: "goldenrod" }}
+            >
+              Customise
+            </button>
+          </div>
+
+          <p
+            onClick={handleSignOut}
+            className="rounded-md hover:cursor-pointer hover:font-semibold inline-block px-4"
           >
-            Customise
-          </button>
+            Sign Out
+          </p>
         </div>
-
-        <p
-          onClick={handleSignOut}
-          className="rounded-md hover:cursor-pointer hover:font-semibold inline-block px-4 py-3 mt-4"
-        >
-          Sign Out
-        </p>
       </div>
     </>
   );
