@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
+import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from "../context/AuthContext";
 
-const Signin = () => {
+const Signin: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,7 +18,7 @@ const Signin = () => {
     }
   }, [session, navigate]);
 
-  const handleSignin = async (e) => {
+  const handleSignin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -25,7 +26,7 @@ const Signin = () => {
       const result = await signInUser(email, password);
 
       if (!result.success) {
-        setError(result.error.message || "Signin failed");
+        setError(result.error || "Signin failed");
         return;
       }
 

@@ -1,4 +1,4 @@
-import React from "react";
+import type { MouseEvent } from "react";
 import { UserAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -6,7 +6,7 @@ function Homepage() {
   const navigate = useNavigate();
   const { session, signOut } = UserAuth();
 
-  const handleSignOut = async (e) => {
+  const handleSignOut = async (e: MouseEvent<HTMLParagraphElement>) => {
     e.preventDefault();
     try {
       await signOut();
