@@ -12,6 +12,7 @@ from rules import (
     can_chi, can_pong, can_gang, can_concealed_gang, can_addon_gang,
     resolve_chi, resolve_pong, resolve_gang, resolve_concealed_gang, resolve_addon_gang
 )
+from bot import smart_discard
 
 class Game:
     def __init__(self):
@@ -40,6 +41,26 @@ class Game:
         exposed_hand = player_affected.exposed_hand
         hand = player_affected.hand
         return {"bonus_tiles": bonus_tiles, "exposed_hand": exposed_hand, "hand": hand}
+    
+    def discard_tile(self, player_id, discarded_tile):
+        player = self.players[player_id - 1]
+        if discarded_tile in player.hand:
+            player.hand.remove(discarded_tile)  # Safely remove the tile
+            print(f"Discarded tile {discarded_tile} from Player {player_id}")
+        else:
+            print(f"Error: Tile {discarded_tile} not found in Player {player_id}'s hand!")
+
+    def bot_discard(self):
+        current_player = self.players[self.turn]
+        if current_player.id != self.interactive_player_id: 
+            discarded_tile = smart_discard(current_player.hand) 
+            if discarded_tile in current_player.hand:
+                self.discard_tile(current_player.id, discarded_tile)
+                return discarded_tile
+            else:
+                print(f"Error: Bot attempted to discard a tile that doesn't exist in the hand")
+                return None
+        return None
 
     def interaction(self, discarded_tile, discarder_id):
         discarder_idx = discarder_id - 1
