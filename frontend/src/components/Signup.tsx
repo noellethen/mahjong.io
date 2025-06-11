@@ -70,7 +70,7 @@ const Signup = () => {
             id=""
           />
           <button type="submit" disabled={loading} className="mt-6 w-full">
-            Sign Up
+            Sign up
           </button>
           <div className="my-4 flex items-center">
             <hr className="flex-1 border-t-2 border-gray-400" />
@@ -88,7 +88,7 @@ const Signup = () => {
           </button>
           {error && <p className="text-red-600 text-center pt-4">{error}</p>}
         </div>
-        <p className="py-4">
+        <p className="py-4 w-full">
           Already have an account? <Link to="/signin">Sign in!</Link>
         </p>
       </form>
