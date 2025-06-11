@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
 /* Data Type for ShopItem and array of our ShopItems */
@@ -185,6 +186,14 @@ const Shop: React.FC = () => {
             owned={flags[item.key] || false}
           />
         ))}
+      </div>
+      <div className="max-w-6xl mx-auto mt-6 flex justify-end">
+        <Link
+          to="/homepage"
+          className="!text-white visited:!text-white hover:underline"
+        >
+          ← Back to Home
+        </Link>
       </div>
     </div>
   );
