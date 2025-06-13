@@ -50,7 +50,7 @@ button:focus-visible {
 
 .full-screen-component {
   height: 100vh;
-  width: 187vh;
+  width: 190vh;
 }
 
 @media (prefers-color-scheme: light) {
