@@ -31,7 +31,7 @@ def smart_discard(hand):
     # Discard tiles not added to keep_tiles
     for tile in list(hand):
         if tile not in keep_tiles:
-            hand.remove(tile)
+            print(f"Bot discarding tile: {tile}")
             return tile
         
     return hand.pop() # If all tiles are in keep_tiles, discard the last tile
