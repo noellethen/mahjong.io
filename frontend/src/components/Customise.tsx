@@ -4,19 +4,19 @@ import { supabase } from '../supabaseClient';
 
 /* Data Type for All Items and array of our Items */
 interface ItemType {
-  key: string;          
+  key: string;
   name: string;
   imageUrl: string;
   type: 'skin' | 'table';
 }
 
 const allItems: ItemType[] = [
-  { key: 'skin_0',  name: 'Skin 0',   imageUrl: '/skins/0.png', type: 'skin' },
-  { key: 'skin_1',  name: 'Skin 1',      imageUrl: '/skins/1.png', type: 'skin' },
-  { key: 'skin_2',  name: 'Skin 2',       imageUrl: '/skins/2.png', type: 'skin' },
-  { key: 'skin_3',  name: 'Skin 3',       imageUrl: '/skins/2.png', type: 'skin' },
-  { key: 'table_0', name: 'Table 0',  imageUrl: '/tables/0.png', type: 'table' },
-  { key: 'table_1', name: 'Table 1',     imageUrl: '/tables/1.png', type: 'table' },
+  { key: 'skin_0',  name: 'Skin 0',  imageUrl: '/skins/0.png',  type: 'skin'  },
+  { key: 'skin_1',  name: 'Skin 1',  imageUrl: '/skins/1.png',  type: 'skin'  },
+  { key: 'skin_2',  name: 'Skin 2',  imageUrl: '/skins/2.png',  type: 'skin'  },
+  { key: 'skin_3',  name: 'Skin 3',  imageUrl: '/skins/3.png',  type: 'skin'  },
+  { key: 'table_0', name: 'Table 0', imageUrl: '/tables/0.png', type: 'table' },
+  { key: 'table_1', name: 'Table 1', imageUrl: '/tables/1.png', type: 'table' },
 ];
 
 type ProfileData = {
@@ -29,10 +29,14 @@ type ProfileData = {
 interface OwnedItemProps {
   item: ItemType;
   onEquip: (item: ItemType) => void;
+  equipped: boolean;
 }
 
-const OwnedItem: React.FC<OwnedItemProps> = ({ item, onEquip }) => (
-  <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col w-64 h-80">
+const OwnedItem: React.FC<OwnedItemProps> = ({ item, onEquip, equipped }) => (
+  <div
+    className={`bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col w-64 h-72
+      ${equipped ? 'border-4 border-yellow-500' : ''}`}
+  >
     <img
       src={item.imageUrl}
       alt={item.name}
@@ -43,11 +47,14 @@ const OwnedItem: React.FC<OwnedItemProps> = ({ item, onEquip }) => (
         {item.name}
       </h3>
       <button
-        onClick={() => onEquip(item)}
-        className="mt-auto bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"
+        onClick={() => { if (!equipped) onEquip(item) }}
+        disabled={equipped}
+        className="w-full rounded-md border px-4 py-2 text-white font-medium"
+        style={{ backgroundColor: equipped ? 'green' : undefined }}
       >
-        Equip
+        {equipped ? 'Equipped' : 'Equip'}
       </button>
+
     </div>
   </div>
 );
@@ -70,7 +77,7 @@ const Customise: React.FC = () => {
 
     const cols = ['equipped_skin', 'equipped_table', ...allItems.map(i => i.key)].join(',');
     const { data, error } = await supabase
-      .from('profiles')               
+      .from('profiles')
       .select(cols)
       .eq('id', userId)
       .single();
@@ -128,18 +135,29 @@ const Customise: React.FC = () => {
         {allItems
           .filter(i => i.type === 'skin' && flags[i.key])
           .map(i => (
-            <OwnedItem key={i.key} item={i} onEquip={handleEquip} />
+            <OwnedItem
+              key={i.key}
+              item={i}
+              onEquip={handleEquip}
+              equipped={i.key === equippedSkin}
+            />
           ))}
       </div>
 
       <h2 className="text-white mb-2">Tables (equipped: {equippedTable})</h2>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 mb-8">
         {allItems
           .filter(i => i.type === 'table' && flags[i.key])
           .map(i => (
-            <OwnedItem key={i.key} item={i} onEquip={handleEquip} />
+            <OwnedItem
+              key={i.key}
+              item={i}
+              onEquip={handleEquip}
+              equipped={i.key === equippedTable}
+            />
           ))}
       </div>
+
       <div className="max-w-6xl mx-auto mt-6 flex justify-end">
         <Link
           to="/homepage"
