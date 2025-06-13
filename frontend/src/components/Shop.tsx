@@ -1,86 +1,94 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient'; 
+import { Link } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
 /* Data Type for ShopItem and array of our ShopItems */
 interface ShopItemType {
   id: number;
+  key: string;       
   name: string;
   price: number;
   imageUrl: string;
 }
 
 const shopItems: ShopItemType[] = [
-  { id: 1, name: 'Skin 1', price: 1000, imageUrl: 'link1' },
-  { id: 2, name: 'Skin 2', price: 2000, imageUrl: 'link2' },
-  { id: 3, name: 'Skin 3', price: 5000, imageUrl: 'link3' },
-  { id: 4, name: 'Table 1', price: 10000, imageUrl: 'link4' },
+  { id: 1, key: 'skin_1',  name: 'Skin 1',  price: 1000,   imageUrl: 'link1' },
+  { id: 2, key: 'skin_2',  name: 'Skin 2',  price: 2000,   imageUrl: 'link2' },
+  { id: 3, key: 'skin_3',  name: 'Skin 3',  price: 5000,   imageUrl: 'link3' },
+  { id: 4, key: 'table_1', name: 'Table 1', price: 10000,  imageUrl: 'link4' },
 ];
+
+type ProfileData = {
+  coins: number;
+  [flag: string]: any;
+};
 
 /* Single Shop Item Card */
 interface ShopItemProps {
   item: ShopItemType;
   onBuySuccess: () => void;
+  owned: boolean;
 }
 
-const ShopItem: React.FC<ShopItemProps> = ({ item, onBuySuccess }) => {
+const ShopItem: React.FC<ShopItemProps> = ({ item, onBuySuccess, owned }) => {
   const [loading, setLoading] = useState(false);
 
   const handleBuy = async () => {
+    if (owned) {
+      alert('You already own this item.');
+      return;
+    }
     setLoading(true);
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
+    const { data: authData, error: authErr } = await supabase.auth.getUser();
+    if (authErr || !authData.user) {
       setLoading(false);
       alert('You must be signed in to make a purchase.');
       return;
     }
-    const userId = user.id;
+    const userId = authData.user.id;
 
-    try {
-      const {
-        data: profileData,
-        error: profileError,
-      } = await supabase
-        .from('profiles')
-        .select('coins')
-        .eq('id', userId)
-        .single();
+    const buyRes = await supabase
+      .from('profiles')
+      .select('coins')
+      .eq('id', userId)
+      .single();
 
-      if (profileError || !profileData) {
-        throw new Error('Failed to fetch your profile.');
-      }
-
-      const currentCoins: number = profileData.coins;
-
-      if (currentCoins < item.price) {
-        alert(`Not enough coins. You have ${currentCoins} coins.`);
-        setLoading(false);
-        return;
-      }
-
-      const newBalance = currentCoins - item.price;
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ coins: newBalance })
-        .eq('id', userId);
-
-      if (updateError) {
-        throw updateError;
-      }
-
-      onBuySuccess();
-
-      alert(`Purchase successful! You now have ${newBalance} coins left.`);
-    } catch (err: any) {
-      console.error('Error buying item:', err);
-      alert(err.message || 'Purchase failed. Try again later.');
-    } finally {
+    if (buyRes.error || !buyRes.data) {
+      console.error(buyRes.error);
       setLoading(false);
+      alert('Failed to load your balance.');
+      return;
     }
+
+    const currentCoins = (buyRes.data as unknown as ProfileData).coins;
+
+    if (currentCoins < item.price) {
+      alert(`Not enough coins. You have ${currentCoins} coins.`);
+      setLoading(false);
+      return;
+    }
+
+    const newBalance = currentCoins - item.price;
+    const updates: Record<string, any> = {
+      coins: newBalance,
+      [item.key]: true,
+    };
+
+    const updateRes = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', userId);
+
+    if (updateRes.error) {
+      console.error(updateRes.error);
+      alert('Purchase failed.');
+    } else {
+      onBuySuccess();
+      alert(`Purchase successful! You now have ${newBalance} coins left.`);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -97,14 +105,16 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, onBuySuccess }) => {
         <p className="text-gray-300 mb-4">{item.price} coins</p>
         <button
           className={`mt-auto ${
-            loading
+            owned
+              ? 'bg-gray-600 cursor-not-allowed'
+              : loading
               ? 'bg-gray-500 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700'
           } text-white font-medium py-2 px-4 rounded`}
           onClick={handleBuy}
-          disabled={loading}
+          disabled={loading || owned}
         >
-          {loading ? 'Processing…' : 'Buy'}
+          {owned ? 'Owned' : loading ? 'Processing…' : 'Buy'}
         </button>
       </div>
     </div>
@@ -112,51 +122,45 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, onBuySuccess }) => {
 };
 
 /* Shop Page: header, balance display, and grid of items */
-const ShopPage: React.FC = () => {
-  const [coins, setCoins] = useState<number | null>(null);
-  const [loadingCoins, setLoadingCoins] = useState(true);
+const Shop: React.FC = () => {
+  const [coins, setCoins] = useState<number>(0);
+  const [flags, setFlags] = useState<Record<string, boolean>>({});
+  const [loading, setLoading] = useState(true);
 
-  const fetchBalance = async () => {
-    setLoadingCoins(true);
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      setCoins(null);
-      setLoadingCoins(false);
+  const fetchProfile = async () => {
+    setLoading(true);
+    const { data: authData, error: authErr } = await supabase.auth.getUser();
+    if (authErr || !authData.user) {
+      setLoading(false);
       return;
     }
-    const userId = user.id;
+    const userId = authData.user.id;
 
-    try {
-      const {
-        data: profileData,
-        error: profileError,
-      } = await supabase
-        .from('profiles')
-        .select('coins')
-        .eq('id', userId)
-        .single();
+    const cols = ['coins', ...shopItems.map(i => i.key)].join(',');
+    const profRes = await supabase
+      .from('profiles')
+      .select(cols)
+      .eq('id', userId)
+      .single();
 
-      if (profileError || !profileData) {
-        console.error('Failed to fetch balance:', profileError);
-        setCoins(null);
-      } else {
-        setCoins(profileData.coins);
-      }
-    } catch (err) {
-      console.error('Error fetching balance:', err);
-      setCoins(null);
-    } finally {
-      setLoadingCoins(false);
+    if (!profRes.error && profRes.data) {
+      const profile = profRes.data as unknown as ProfileData;
+      setCoins(profile.coins);
+
+      const newFlags: Record<string, boolean> = {};
+      shopItems.forEach(i => {
+        newFlags[i.key] = Boolean(profile[i.key]);
+      });
+      setFlags(newFlags);
+    } else {
+      console.error(profRes.error);
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
-    fetchBalance();
+    fetchProfile();
   }, []);
 
   return (
@@ -165,27 +169,34 @@ const ShopPage: React.FC = () => {
         Shop
       </h1>
       <div className="max-w-md mx-auto mb-8">
-        {loadingCoins ? (
-          <p className="text-center text-gray-300">Loading balance…</p>
-        ) : coins === null ? (
-          <p className="text-center text-red-400">Not signed in.</p>
+        {loading ? (
+          <p className="text-center text-gray-300">Loading profile…</p>
         ) : (
           <p className="text-center text-xl text-yellow-300">
-            Your coins: {coins}
+            Coins: {coins}
           </p>
         )}
       </div>
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {shopItems.map((item) => (
+        {shopItems.map(item => (
           <ShopItem
             key={item.id}
             item={item}
-            onBuySuccess={fetchBalance}
+            onBuySuccess={fetchProfile}
+            owned={flags[item.key] || false}
           />
         ))}
+      </div>
+      <div className="max-w-6xl mx-auto mt-6 flex justify-end">
+        <Link
+          to="/homepage"
+          className="!text-white visited:!text-white hover:underline"
+        >
+          ← Back to Home
+        </Link>
       </div>
     </div>
   );
 };
 
-export default ShopPage;
+export default Shop;
