@@ -6,6 +6,7 @@ type GameStateResponse = {
   hand: string[];
   current_turn: number;
   discarded_tile: string;
+  drawn_tile: string;
 };
 
 function Gamemode() {
@@ -15,6 +16,7 @@ function Gamemode() {
   const [discardedTiles, setDiscardedTiles] = useState<string[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(1);
   const [discardedTile, setDiscardedTile] = useState<string[]>([]);
+  const [drawnTile, setDrawnTile] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,6 +36,10 @@ function Gamemode() {
           if (data.discarded_tile) {
             setDiscardedTiles((prev) => [...prev, data.discarded_tile]);
           }
+
+          if (data.drawn_tile && drawnTile != data.drawn_tile) {
+            setDrawnTile(data.drawn_tile);
+          }
         })
         .catch((err) => {
           setError(err.message);
@@ -44,7 +50,7 @@ function Gamemode() {
     }, 2000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [drawnTile]);
 
   const handleTileClick = (tile: string, idx: number) => {
     if (currentTurn !== 0) {

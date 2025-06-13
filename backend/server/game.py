@@ -6,7 +6,7 @@ Simulates actual turn-based game, with dealing and player interaction (Chi, Gang
 
 import random
 from player import Player
-from tiles import generate_full_wall, sort_tiles
+from tiles import generate_full_wall
 from rules import (
     handle_bonus_tile, calculate_tai, check_win,
     can_chi, can_pong, can_gang, can_concealed_gang, can_addon_gang,
@@ -22,6 +22,7 @@ class Game:
         random.shuffle(self.wall)
         self.turn = 0
         self.winner = None
+        self.has_drawn = False
 
     def deal_tiles(self):
         for i in range(13):
@@ -33,7 +34,7 @@ class Game:
                     drawn_tile = self.wall.pop()
 
                 player.draw_tile(drawn_tile)
-                player.hand = sort_tiles(player.hand)
+                player.hand = self.sort_tiles(player.hand)
 
     def get_player_info(self, player_num):
         player_affected = self.players[player_num - 1]
@@ -56,11 +57,52 @@ class Game:
             discarded_tile = smart_discard(current_player.hand) 
             if discarded_tile in current_player.hand:
                 self.discard_tile(current_player.id, discarded_tile)
+                current_player.hand = self.sort_tiles(current_player.hand)
                 return discarded_tile
             else:
                 print(f"Error: Bot attempted to discard a tile that doesn't exist in the hand")
                 return None
         return None
+    
+    def draw_tile(self):
+        current_player = self.players[self.turn]
+        drawn_tile = self.wall.pop()
+        current_player.hand.append(drawn_tile)
+        return drawn_tile
+
+    def get_tile_number(self, tile):
+        try:
+            return int(tile[0])
+        except ValueError:
+            return 0
+
+    def sort_numeric_tiles(self, tiles):
+        tiles.sort(key = self.get_tile_number)
+
+    def sort_tiles(self, hand):
+        # Sort in order of: B, C, D, Honors
+        bamboos = []
+        characters = []
+        dots = []
+        honors = []
+
+        for tile in hand:
+            if len(tile) == 2 and tile[1] == 'B':
+                bamboos.append(tile)
+            elif len(tile) == 2 and tile[1] == 'C':
+                characters.append(tile)
+            elif len(tile) == 2 and tile[1] == 'D':
+                dots.append(tile)
+            else:
+                honors.append(tile) 
+
+        # Sort each category
+        self.sort_numeric_tiles(bamboos)
+        self.sort_numeric_tiles(characters)
+        self.sort_numeric_tiles(dots)
+        honors.sort() # Alphabetical order
+
+        return bamboos + characters + dots + honors
 
     def interaction(self, discarded_tile, discarder_id):
         discarder_idx = discarder_id - 1
