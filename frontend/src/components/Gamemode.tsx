@@ -2,23 +2,24 @@ import { useEffect, useState } from "react";
 
 type GameStateResponse = {
   bonus: string[];
-  exposed: string[];
+  exposed: string[][];
   hand: string[];
   current_turn: number;
-  discarded_tile: string;
-  drawn_tile: string;
+  discarded_tile: string | null;
+  drawn_tile: string | null;
+  possibleChi: string[][];
 };
 
 function Gamemode() {
-  const [bonusTiles, setbonusTiles] = useState<string[]>([]);
-  const [exposedTiles, setExposedTiles] = useState<string[]>([]);
+  const [bonusTiles, setBonusTiles] = useState<string[]>([]);
+  const [exposedTiles, setExposedTiles] = useState<string[][]>([]);         
   const [handTiles, setHandTiles] = useState<string[]>([]);
   const [discardedTiles, setDiscardedTiles] = useState<string[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(1);
-  const [discardedTile, setDiscardedTile] = useState<string[]>([]);
-  const [drawnTile, setDrawnTile] = useState<string[]>([]);
+  const [drawnTile, setDrawnTile] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [possibleChi, setPossibleChi] = useState<string[][]>([]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -28,7 +29,7 @@ function Gamemode() {
           return res.json() as Promise<GameStateResponse>;
         })
         .then((data) => {
-          setbonusTiles(data.bonus);
+          setBonusTiles(data.bonus);
           setExposedTiles(data.exposed);
           setHandTiles(data.hand);
           setCurrentTurn(data.current_turn);
@@ -37,9 +38,11 @@ function Gamemode() {
             setDiscardedTiles((prev) => [...prev, data.discarded_tile]);
           }
 
-          if (data.drawn_tile && drawnTile != data.drawn_tile) {
+          if (data.drawn_tile && data.drawn_tile !== drawnTile) {
             setDrawnTile(data.drawn_tile);
           }
+
+          setPossibleChi(data.possibleChi || []);
         })
         .catch((err) => {
           setError(err.message);
@@ -51,17 +54,40 @@ function Gamemode() {
 
     return () => clearInterval(intervalId);
   }, [drawnTile]);
+  const doChi = async (meld: string[]) => {
+    try {
+      const res = await fetch("/api/chi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tiles: meld }),
+      });
+      const upd = await res.json();
+      setHandTiles(upd.hand);
+      setExposedTiles(upd.exposed);
+      setDiscardedTiles((prev) => prev.slice(0, -1));
+      setPossibleChi([]);
+    } catch (err) {
+      console.error("Error performing Chi:", err);
+    }
+  };
+
+  const doNoChi = async () => {
+    try {
+      await fetch("/api/pass_chi", { method: "POST" });
+      setPossibleChi([]);
+    } catch (err) {
+      console.error("Error passing Chi:", err);
+    }
+  };
 
   const handleTileClick = (tile: string, idx: number) => {
-    if (currentTurn !== 0) {
+    if (currentTurn !== 0 || possibleChi.length > 0) {
       return;
     }
 
     fetch("/api/discard_tile", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tile, idx }),
     })
       .then((res) => res.json())
@@ -90,6 +116,26 @@ function Gamemode() {
       <div className="text-xl font-bold text-white py-10 ">
         Player {currentTurn + 1}'s turn
       </div>
+      {currentTurn === 0 && possibleChi.length > 0 && (
+        <div className="chi-options flex space-x-2 mb-4">
+          <span className="font-semibold text-white">Chi?</span>
+          {possibleChi.map((meld, i) => (
+            <button
+              key={i}
+              className="px-3 py-1 bg-green-600 text-white rounded shadow hover:bg-green-700"
+              onClick={() => doChi(meld)}
+            >
+              {meld.join(" ")}
+            </button>
+          ))}
+          <button
+            className="px-3 py-1 bg-red-600 text-white rounded shadow hover:bg-red-700"
+            onClick={doNoChi}
+          >
+            No
+          </button>
+        </div>
+      )}
 
       {discardedTiles.length > 0 && (
         <div className="absolute flex items-center justify-center flex-wrap text-xl text-white pb-25 max-w-md">
@@ -125,16 +171,20 @@ function Gamemode() {
         )}
       </div>
 
-      {/* Middle row: exposed tiles */}
+      {/* Middle row: exposed tiles (Error 4) */}
       <div className="flex flex-row gap-3 items-center justify-center">
         <p>Exposed: </p>
         {exposedTiles.length > 0 ? (
-          exposedTiles.map((tile, idx) => (
-            <div
-              key={`exposed-${idx}`}
-              className="bg-gray-500 border-2 border-transparent text-white py-2 px-4 rounded-md transition-colors duration-300"
-            >
-              {tile}
+          exposedTiles.map((meld, i) => (
+            <div key={i} className="flex gap-2">
+              {meld.map((tile, k) => (
+                <div
+                  key={`${i}-${k}`}
+                  className="bg-gray-500 border-2 border-transparent text-white py-2 px-4 rounded-md transition-colors duration-300"
+                >
+                  {tile}
+                </div>
+              ))}
             </div>
           ))
         ) : (
