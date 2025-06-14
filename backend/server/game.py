@@ -70,6 +70,15 @@ class Game:
     def draw_tile(self):
         current_player = self.players[self.turn]
         drawn_tile = self.wall.pop()
+
+        while drawn_tile.startswith("Flower") or drawn_tile.startswith("Season") or drawn_tile in ['Cat', 'Mouse', 'Chicken', 'Centipede']:
+            handle_bonus_tile(current_player, drawn_tile)
+            print(f"Player {current_player.id} draws bonus tile {drawn_tile}, replacing...")
+            if self.wall:
+                drawn_tile = self.wall.pop()
+            else: 
+                break
+            
         current_player.hand.append(drawn_tile)
         return drawn_tile
 
