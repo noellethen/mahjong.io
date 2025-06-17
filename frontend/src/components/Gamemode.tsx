@@ -7,6 +7,7 @@ type GameStateResponse = {
   current_turn: number;
   discarded_tile: string | null;
   drawn_tile: string | null;
+  possiblePong: string[];
   possibleChi: string[][];
 };
 
@@ -19,6 +20,7 @@ function Gamemode() {
   const [drawnTile, setDrawnTile] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [possiblePong, setPossiblePong] = useState<string[]>([]);
   const [possibleChi, setPossibleChi] = useState<string[][]>([]);
 
   useEffect(() => {
@@ -41,7 +43,7 @@ function Gamemode() {
           if (data.drawn_tile && data.drawn_tile !== drawnTile) {
             setDrawnTile(data.drawn_tile);
           }
-
+          setPossiblePong(data.possiblePong);
           setPossibleChi(data.possibleChi || []);
         })
         .catch((err) => {
@@ -54,6 +56,33 @@ function Gamemode() {
 
     return () => clearInterval(intervalId);
   }, [drawnTile]);
+
+  const doPong = async (tile: string) => {
+    try {
+      const res = await fetch("/api/pong", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tile })
+      });
+      const upd = await res.json();
+      setHandTiles(upd.hand);
+      setExposedTiles(upd.exposed);
+      setDiscardedTiles(prev => prev.slice(0, -1)); // remove stolen tile
+      setPossiblePong([]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const doNoPong = async () => {
+    try {
+      await fetch("/api/pass_pong", { method: "POST" });
+      setPossiblePong([]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const doChi = async (meld: string[]) => {
     try {
       const res = await fetch("/api/chi", {
@@ -81,7 +110,7 @@ function Gamemode() {
   };
 
   const handleTileClick = (tile: string, idx: number) => {
-    if (currentTurn !== 0 || possibleChi.length > 0) {
+    if (currentTurn !== 0 || possiblePong.length > 0 || possibleChi.length > 0) {
       return;
     }
 
@@ -93,7 +122,6 @@ function Gamemode() {
       .then((res) => res.json())
       .then((data) => {
         console.log("Tile sent to backend: ", data);
-
         setDiscardedTiles((prev) => [...prev, data.discarded_tile]);
         setHandTiles((prev) => {
           const next = [...prev];
@@ -116,7 +144,23 @@ function Gamemode() {
       <div className="text-xl font-bold text-white py-10 ">
         Player {currentTurn + 1}'s turn
       </div>
-      {currentTurn === 0 && possibleChi.length > 0 && (
+      {currentTurn===0 && possiblePong.length>0 && (
+        <div className="flex space-x-2 mb-4">
+          <button
+            className="px-3 py-1 bg-blue-600 text-white rounded"
+            onClick={() => doPong(possiblePong[0])}
+          >
+            Pong {possiblePong[0]}
+          </button>
+          <button
+            className="px-3 py-1 bg-red-600 text-white rounded"
+            onClick={doNoPong}
+          >
+            No Pong
+          </button>
+        </div>
+      )}
+      {currentTurn === 0 && !possiblePong.length && possibleChi.length > 0 && (
         <div className="chi-options flex space-x-2 mb-4">
           <span className="font-semibold text-white">Chi?</span>
           {possibleChi.map((meld, i) => (

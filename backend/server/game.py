@@ -184,6 +184,12 @@ class Game:
 
         return False
     
+    def get_pong_option(self, player_id: int):
+        tile = self.last_discard
+        if tile and can_pong(self.players[player_id-1].hand, tile):
+            return tile
+        return None
+    
     def get_chi_options(self, player_id: int):
         hand = self.players[player_id - 1].hand
         discard = self.last_discard
@@ -198,6 +204,10 @@ class Game:
     def pass_chi(self):
         print("Player passed Chi")
         self.last_discard = None
+
+    def pass_pong(self):
+        print("Player passed Pong")
+        return 
     
     def start_game(self):
         self.deal_tiles()
