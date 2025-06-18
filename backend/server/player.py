@@ -18,24 +18,15 @@ class Player:
     def draw_tile(self, tile):
         self.hand.append(tile)
     
-    def discard_tile(self, interactive):
+    def discard_tile(self, interactive, discarded_tile=None):
         # If player is human, discarded tile can be chosen. Else, apply bot discard logic
         if not self.hand:
             return None
         
         if interactive:
-            print(f"\nYour hand: {self.hand}")
-            while True:
-                try:
-                    index = int(input("Enter the tile index to discard from 0 to 13: "))
-                    if 0 <= index < len(self.hand):
-                        return self.hand.pop(index)
-                    else:
-                        print("Invalid index.")
-                except ValueError:
-                    print("Invalid index.")
+            self.hand.remove(discarded_tile)
         else:
-            return smart_discard(self.hand) # Bot discard logic
+            self.hand.remove(smart_discard(self.hand)) # Bot discard logic
         
     def has_won(self):
         full_hand = self.hand.copy()

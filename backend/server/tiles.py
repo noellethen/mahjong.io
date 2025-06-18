@@ -30,36 +30,36 @@ def generate_full_wall():
     wall = generate_suited_tiles() + generate_honor_tiles() + generate_bonus_tiles()
     return wall # Add and return everything (unsorted)
 
-def get_tile_number(tile):
-    try:
-        return int(tile[0])
-    except ValueError:
-        return 0
+# def get_tile_number(tile):
+#     try:
+#         return int(tile[0])
+#     except ValueError:
+#         return 0
 
-def sort_numeric_tiles(tiles):
-    tiles.sort(key = get_tile_number)
+# def sort_numeric_tiles(tiles):
+#     tiles.sort(key = get_tile_number)
 
-def sort_tiles(hand):
-    # Sort in order of: B, C, D, Honors
-    bamboos = []
-    characters = []
-    dots = []
-    honors = []
+# def sort_tiles(hand):
+#     # Sort in order of: B, C, D, Honors
+#     bamboos = []
+#     characters = []
+#     dots = []
+#     honors = []
 
-    for tile in hand:
-        if len(tile) == 2 and tile[1] == 'B':
-            bamboos.append(tile)
-        elif len(tile) == 2 and tile[1] == 'C':
-            characters.append(tile)
-        elif len(tile) == 2 and tile[1] == 'D':
-            dots.append(tile)
-        else:
-            honors.append(tile) 
+#     for tile in hand:
+#         if len(tile) == 2 and tile[1] == 'B':
+#             bamboos.append(tile)
+#         elif len(tile) == 2 and tile[1] == 'C':
+#             characters.append(tile)
+#         elif len(tile) == 2 and tile[1] == 'D':
+#             dots.append(tile)
+#         else:
+#             honors.append(tile) 
 
-    # Sort each category
-    sort_numeric_tiles(bamboos)
-    sort_numeric_tiles(characters)
-    sort_numeric_tiles(dots)
-    honors.sort() # Alphabetical order
+#     # Sort each category
+#     sort_numeric_tiles(bamboos)
+#     sort_numeric_tiles(characters)
+#     sort_numeric_tiles(dots)
+#     honors.sort() # Alphabetical order
 
-    return bamboos + characters + dots + honors
+#     return bamboos + characters + dots + honors
