@@ -13,7 +13,7 @@ type GameStateResponse = {
 
 function Gamemode() {
   const [bonusTiles, setBonusTiles] = useState<string[]>([]);
-  const [exposedTiles, setExposedTiles] = useState<string[][]>([]);         
+  const [exposedTiles, setExposedTiles] = useState<string[][]>([]);
   const [handTiles, setHandTiles] = useState<string[]>([]);
   const [discardedTiles, setDiscardedTiles] = useState<string[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(1);
@@ -62,12 +62,12 @@ function Gamemode() {
       const res = await fetch("/api/pong", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tile })
+        body: JSON.stringify({ tile }),
       });
       const upd = await res.json();
       setHandTiles(upd.hand);
       setExposedTiles(upd.exposed);
-      setDiscardedTiles(prev => prev.slice(0, -1)); // remove stolen tile
+      setDiscardedTiles((prev) => prev.slice(0, -1)); // remove stolen tile
       setPossiblePong([]);
     } catch (err) {
       console.error(err);
@@ -110,7 +110,11 @@ function Gamemode() {
   };
 
   const handleTileClick = (tile: string, idx: number) => {
-    if (currentTurn !== 0 || possiblePong.length > 0 || possibleChi.length > 0) {
+    if (
+      currentTurn !== 0 ||
+      possiblePong.length > 0 ||
+      possibleChi.length > 0
+    ) {
       return;
     }
 
@@ -146,7 +150,7 @@ function Gamemode() {
       <div className="text-xl font-bold text-white py-10 ">
         Player {currentTurn + 1}'s turn
       </div>
-      {currentTurn===0 && possiblePong.length>0 && (
+      {currentTurn === 0 && possiblePong.length > 0 && (
         <div className="flex space-x-2 mb-4">
           <button
             className="px-3 py-1 bg-blue-600 text-white rounded"
@@ -226,10 +230,7 @@ function Gamemode() {
           exposedTiles.map((meld, i) => (
             <div key={i} className="flex gap-2">
               {meld.map((tile, k) => (
-                <div
-                  key={`${i}-${k}`}
-                  className="bg-gray-500 border-2 border-transparent text-white py-2 px-4 rounded-md transition-colors duration-300"
-                >
+                <div key={`${i}-${k}`}>
                   <img
                     src={tileUrl(tile)}
                     alt={tile}
