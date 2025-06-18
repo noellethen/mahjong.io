@@ -9,7 +9,7 @@ from player import Player
 from tiles import generate_full_wall
 from rules import (
     handle_bonus_tile, calculate_tai, check_win,
-    can_chi, can_pong, can_gang, can_concealed_gang, can_addon_gang,
+    can_chi, can_pong, can_gang, can_concealed_gang, can_addon_gang, find_valid_chis,
     resolve_chi, resolve_pong, resolve_gang, resolve_concealed_gang, resolve_addon_gang
 )
 from bot import smart_discard
@@ -23,6 +23,7 @@ class Game:
         self.turn = 0
         self.winner = None
         self.has_drawn = False
+        self.last_discard = None
 
     def deal_tiles(self):
         for i in range(13):
@@ -48,6 +49,8 @@ class Game:
         if discarded_tile in player.hand:
             player.hand.remove(discarded_tile)  # Safely remove the tile
             print(f"Discarded tile {discarded_tile} from Player {player_id}")
+            player.hand = self.sort_tiles(player.hand)
+            self.last_discard = discarded_tile
         else:
             print(f"Error: Tile {discarded_tile} not found in Player {player_id}'s hand!")
 
@@ -180,6 +183,31 @@ class Game:
                 return True
 
         return False
+    
+    def get_pong_option(self, player_id: int):
+        tile = self.last_discard
+        if tile and can_pong(self.players[player_id-1].hand, tile):
+            return tile
+        return None
+    
+    def get_chi_options(self, player_id: int):
+        hand = self.players[player_id - 1].hand
+        discard = self.last_discard
+        options = []
+        if not discard:
+            return options
+        for pair in find_valid_chis(hand, discard):
+            meld = sorted(pair + [discard], key=lambda t: (t[1], int(t[0])))
+            options.append(meld)
+        return options
+    
+    def pass_chi(self):
+        print("Player passed Chi")
+        self.last_discard = None
+
+    def pass_pong(self):
+        print("Player passed Pong")
+        return 
     
     def start_game(self):
         self.deal_tiles()
