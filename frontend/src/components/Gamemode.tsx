@@ -136,6 +136,8 @@ function Gamemode() {
       });
   };
 
+  const tileUrl = (tile: string) => `/tiles/${tile}.png`;
+
   if (loading) return <div>Loading game state...</div>;
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
@@ -185,11 +187,12 @@ function Gamemode() {
         <div className="absolute flex items-center justify-center flex-wrap text-xl text-white pb-25 max-w-md">
           <div className="flex gap-3 flex-wrap justify-center">
             {discardedTiles.map((tile, idx) => (
-              <div
-                key={`discarded-${idx}`}
-                className="bg-gray-500 border-2 border-transparent text-white py-2 px-4 rounded-md transition-colors duration-300"
-              >
-                {tile}
+              <div key={`discarded-${idx}`}>
+                <img
+                  src={tileUrl(tile)}
+                  alt={tile}
+                  className="w-15 h-16 object-contain transition-transform duration-200 hover:scale-105"
+                />
               </div>
             ))}
           </div>
@@ -203,11 +206,12 @@ function Gamemode() {
         <p>Bonus: </p>
         {bonusTiles.length > 0 ? (
           bonusTiles.map((tile, idx) => (
-            <div
-              key={`bonus-${idx}`}
-              className="bg-gray-500 border-2 border-transparent text-white py-2 px-4 rounded-md transition-colors duration-300"
-            >
-              {tile}
+            <div key={`bonus-${idx}`}>
+              <img
+                src={tileUrl(tile)}
+                alt={tile}
+                className="w-15 h-16 object-contain transition-transform duration-200 hover:scale-105"
+              />
             </div>
           ))
         ) : (
@@ -226,7 +230,11 @@ function Gamemode() {
                   key={`${i}-${k}`}
                   className="bg-gray-500 border-2 border-transparent text-white py-2 px-4 rounded-md transition-colors duration-300"
                 >
-                  {tile}
+                  <img
+                    src={tileUrl(tile)}
+                    alt={tile}
+                    className="w-15 h-16 object-contain transition-transform duration-200 hover:scale-105"
+                  />
                 </div>
               ))}
             </div>
@@ -242,10 +250,14 @@ function Gamemode() {
         {handTiles.map((tile, idx) => (
           <div
             key={`hand-${idx}`}
-            className="bg-gray-500 border-2 border-transparent hover:cursor-pointer hover:border-blue-500 text-white py-2 px-4 rounded-md transition-colors duration-300"
             onClick={() => handleTileClick(tile, idx)}
+            className="hover:cursor-pointer"
           >
-            {tile}
+            <img
+              src={tileUrl(tile)}
+              alt={tile}
+              className="w-15 h-16 object-contain transition-transform duration-200 hover:scale-105"
+            />
           </div>
         ))}
       </div>
