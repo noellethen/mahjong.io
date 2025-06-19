@@ -1,18 +1,39 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from game import Game
-from rules import can_chi, can_pong       
+from rules import can_chi, can_pong , check_win, check_win_discard, calculate_tai      
 
 app = Flask(__name__)
 cors = CORS(app, origins='*')
 game = Game()
 game.start_game()
 game.last_discarder = None
+game.winner = None
+game.is_draw = False
 
 # Gamemode Page
 @app.route("/api/game_state")
 def game_state():
     game.turn = game.turn % len(game.players)
+
+    if game.winner:
+        return jsonify({"winner": game.winner.id, "tai": game.winner.tai})
+    
+    if game.is_draw:
+        return jsonify({"draw": True})
+
+    if not game.wall and game.last_discard is None:
+        print("Wall exhausted — draw game.")
+        game.is_draw = True
+        return jsonify({"draw": True})
+    
+    player = game.players[0]
+    if game.turn == 0 and game.has_drawn and game.last_discard is None:
+        if check_win(player.hand, player.exposed_hand):
+            calculate_tai(player)
+            game.winner = player
+            print(f"Player {player.id} wins by self-draw with {player.tai} Tai!")
+            return jsonify({"winner": player.id, "tai": player.tai})
 
     player_1_info = game.get_player_info(1)
     current_player = game.players[game.turn]
@@ -42,9 +63,16 @@ def game_state():
         print(f"Bot discarded tile: {discarded_tile}")
         game.has_drawn = False
 
+        if discarded_tile is not None:
+            winner = check_win_discard(game, game.players[bot_idx], discarded_tile)
+            if winner:
+                calculate_tai(winner)
+                game.winner = winner
+                print(f"Player {winner.id} wins by discard with {winner.tai} Tai!")
+                return jsonify({"winner": winner.id, "tai": winner.tai})
+
         keep_pong = discarded_tile and can_pong(game.players[0].hand, discarded_tile)
 
-        # Chi only from immediate predecessor
         interactive_idx = game.interactive_player_id - 1
         predecessor_idx = (interactive_idx - 1) % len(game.players)
         keep_chi = (
@@ -54,13 +82,10 @@ def game_state():
         )
 
         if keep_pong or keep_chi:
-            # Offer claim options
             game.last_discard = discarded_tile
-            # ### PONG CHANGE: store who discarded
             game.last_discarder = bot_idx
             game.turn = 0
         else:
-            # No claim, clear and advance
             game.last_discard = None
             game.turn = (game.turn + 1) % 4
 
@@ -99,7 +124,16 @@ def discard_tile():
         print(f"Player 1's hand after discard: {game.players[0].hand}")
         game.players[0].hand = game.sort_tiles(game.players[0].hand)
         game.has_drawn = False
-        game.turn = (game.turn + 1) % 4
+
+        if discarded_tile is not None:
+            winner = check_win_discard(game, game.players[0], discarded_tile)
+            if winner:
+                calculate_tai(winner)
+                game.winner = winner           
+                print(f"Player {winner.id} wins by discard with {winner.tai} Tai!")
+                return jsonify({"winner": winner.id, "tai": winner.tai})
+    
+    game.turn = (game.turn + 1) % 4
 
     return jsonify({
         "message":        "Tile discarded",
@@ -117,7 +151,6 @@ def pong():
     resolve_pong(game.players[0], tile)
     print(f"Resolved Pong for: {tile}")
 
-    # clear discard, keep turn for player to discard
     game.last_discard = None
     game.has_drawn = True
     game.turn = 0
@@ -145,7 +178,7 @@ def pass_pong():
 @app.route("/api/chi", methods=["POST"])
 def chi():
     data = request.get_json()
-    tiles = data.get("tiles")  # e.g. ["2B","3B","4B"]
+    tiles = data.get("tiles") 
     print(f"Player chose Chi for tiles: {tiles}")
 
     from rules import resolve_chi
@@ -169,6 +202,18 @@ def pass_chi():
     game.has_drawn = False   
 
     return jsonify({"message": "Chi passed"})
+
+@app.route("/api/reset", methods=["POST"])
+def reset():
+    global game
+    game = Game()
+    game.start_game()
+    game.last_discarder = None
+    game.winner = None
+    game.has_drawn = False
+    game.is_draw = False
+    print("Game reset!")
+    return jsonify({"message": "Game reset"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

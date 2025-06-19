@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 type GameStateResponse = {
   bonus: string[];
@@ -7,8 +8,11 @@ type GameStateResponse = {
   current_turn: number;
   discarded_tile: string | null;
   drawn_tile: string | null;
-  possiblePong: string[];
-  possibleChi: string[][];
+  possiblePong?: string[];
+  possibleChi?: string[][];
+  winner?: number;
+  tai?: number;
+  draw?: boolean;
 };
 
 function Gamemode() {
@@ -22,6 +26,9 @@ function Gamemode() {
   const [error, setError] = useState<string | null>(null);
   const [possiblePong, setPossiblePong] = useState<string[]>([]);
   const [possibleChi, setPossibleChi] = useState<string[][]>([]);
+  const [winner, setWinner] = useState<number | null>(null);
+  const [tai, setTai] = useState<number | null>(null);
+  const [draw, setDraw]     = useState<boolean>(false);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -31,6 +38,17 @@ function Gamemode() {
           return res.json() as Promise<GameStateResponse>;
         })
         .then((data) => {
+          if (data.winner !== undefined) {
+            setWinner(data.winner);
+            setTai(data.tai || 0);
+            clearInterval(intervalId);
+            return;
+          }
+          if (data.draw) {
+            setDraw(true);
+            clearInterval(intervalId);
+            return;
+          }
           setBonusTiles(data.bonus);
           setExposedTiles(data.exposed);
           setHandTiles(data.hand);
@@ -43,7 +61,7 @@ function Gamemode() {
           if (data.drawn_tile && data.drawn_tile !== drawnTile) {
             setDrawnTile(data.drawn_tile);
           }
-          setPossiblePong(data.possiblePong);
+          setPossiblePong(data.possiblePong ?? []);
           setPossibleChi(data.possibleChi || []);
         })
         .catch((err) => {
@@ -125,6 +143,11 @@ function Gamemode() {
     })
       .then((res) => res.json())
       .then((data) => {
+        if ((data as any).winner !== undefined) {
+          setWinner((data as any).winner);
+          setTai((data as any).tai);
+          return;
+        }
         console.log("Tile sent to backend: ", data);
         setDiscardedTiles((prev) => [...prev, data.discarded_tile]);
         setHandTiles((prev) => {
@@ -139,6 +162,44 @@ function Gamemode() {
         console.error("Error sending tile: ", err);
       });
   };
+  if (winner !== null) {
+    return (
+      <div className="h-screen w-full flex flex-col bg-black-900 text-white">
+        <div className="flex-grow flex flex-col items-center justify-center">
+          <h1 className="text-4xl font-bold mb-4">
+            Player {winner} Wins!
+          </h1>
+          <p className="text-2xl">with {tai} Tai</p>
+        </div>
+        <div className="w-full mx-auto mb-6 flex justify-end px-4">
+          <Link
+            to="/homepage"
+            className="!text-white visited:!text-white hover:underline"
+          >
+            ← Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  if (draw) {
+    return (
+      <div>
+        <div className="h-screen w-full flex flex-col items-center justify-center bg-black-900 text-white">
+          <h1 className="text-5xl font-bold mb-4">No Winner</h1>
+          <p className="text-2xl">The wall is exhausted.</p>
+        </div>
+        <div className="w-full mx-auto mb-6 flex justify-end px-4">
+            <Link
+              to="/homepage"
+              className="!text-white visited:!text-white hover:underline"
+            >
+              ← Back to Home
+            </Link>
+          </div>
+      </div>
+    );
+  }
 
   const tileUrl = (tile: string) => `/tiles/${tile}.png`;
 

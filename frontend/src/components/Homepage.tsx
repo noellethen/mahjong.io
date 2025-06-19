@@ -16,6 +16,22 @@ function Homepage() {
     }
   };
 
+ const handlePlay = async () => {
+    try {
+      const res = await fetch("/api/game_state");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.winner !== undefined || data.draw) {
+        await fetch("/api/reset", { method: "POST" });
+        console.log("Game was finished—resetting before new round.");
+      }
+      navigate("/gamemode");
+    } catch (err) {
+      console.error("Error starting game:", err);
+      navigate("/gamemode");
+    }
+  };
+
   return (
     <>
       <div className="full-screen-component min-h-screen bg-[url('/Homepage.png')] bg-cover bg-no-repeat bg-center">
@@ -27,7 +43,7 @@ function Homepage() {
 
           <div className="flex flex-col space-y-4 w-40">
             <button
-              onClick={() => navigate("/gamemode")}
+              onClick={handlePlay}
               className="w-full rounded-md border px-4 py-2"
               style={{ backgroundColor: "goldenrod" }}
             >

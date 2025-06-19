@@ -23,6 +23,7 @@ class Game:
         self.turn = 0
         self.winner = None
         self.has_drawn = False
+        self.is_draw = False
         self.last_discard = None
 
     def deal_tiles(self):
@@ -47,7 +48,7 @@ class Game:
     def discard_tile(self, player_id, discarded_tile):
         player = self.players[player_id - 1]
         if discarded_tile in player.hand:
-            player.hand.remove(discarded_tile)  # Safely remove the tile
+            player.hand.remove(discarded_tile) 
             print(f"Discarded tile {discarded_tile} from Player {player_id}")
             player.hand = self.sort_tiles(player.hand)
             self.last_discard = discarded_tile
@@ -56,15 +57,16 @@ class Game:
 
     def bot_discard(self):
         current_player = self.players[self.turn]
-        if current_player.id != self.interactive_player_id: 
-            discarded_tile = smart_discard(current_player.hand) 
-            if discarded_tile in current_player.hand:
-                self.discard_tile(current_player.id, discarded_tile)
-                current_player.hand = self.sort_tiles(current_player.hand)
-                return discarded_tile
-            else:
-                print(f"Error: Bot attempted to discard a tile that doesn't exist in the hand")
-                return None
+        if current_player.id != self.interactive_player_id:
+            discarded_tile = smart_discard(current_player.hand)
+            if not discarded_tile or discarded_tile not in current_player.hand:
+                if current_player.hand:
+                    discarded_tile = random.choice(current_player.hand)
+                else:
+                    return None
+            self.discard_tile(current_player.id, discarded_tile)
+            current_player.hand = self.sort_tiles(current_player.hand)
+            return discarded_tile
         return None
     
     def draw_tile(self):
