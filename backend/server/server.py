@@ -41,9 +41,13 @@ def game_state():
     # For debugging
     print(f"Current Turn: {game.turn}")
     print(f"Player 1's hand: {game.players[0].hand}")
+    print(f"Player 1's bonus tiles: {player_1_info['bonus_tiles']}")
     print(f"Player 2's hand: {game.players[1].hand}")
+    print(f"Player 2's bonus tiles: {game.players[1].bonus_tiles}")
     print(f"Player 3's hand: {game.players[2].hand}")
+    print(f"Player 3's bonus tiles: {game.players[2].bonus_tiles}")
     print(f"Player 4's hand: {game.players[3].hand}")
+    print(f"Player 4's bonus tiles: {game.players[3].bonus_tiles}")
 
     discarded_tile = None
     drawn_tile = None
@@ -89,27 +93,28 @@ def game_state():
             game.last_discard = None
             game.turn = (game.turn + 1) % 4
 
-
-    possiblePong = []
-    if game.turn == 0:
-        p = game.get_pong_option(1)
-        if p:
-            possiblePong = [p]
-
-    possibleChi = []
-    if game.turn == 0 and not possiblePong:
-        possibleChi = game.get_chi_options(1)
-
-    return jsonify({
-        "bonus":          player_1_info.get("bonus_tiles", []),
-        "exposed":        player_1_info.get("exposed_hand", []),
-        "hand":           player_1_info.get("hand", []),
+    response = {
+        "bonus":          player_1_info["bonus_tiles"],
+        "exposed":        player_1_info["exposed_hand"],
+        "hand":           player_1_info["hand"],
         "current_turn":   current_player.id - 1,
         "discarded_tile": discarded_tile,
         "drawn_tile":     drawn_tile,
-        "possiblePong":  possiblePong,
-        "possibleChi":    possibleChi
-    })
+        "possiblePong":   ([game.get_pong_option(1)] if game.turn == 0 and game.get_pong_option(1) else []),
+        "possibleChi":    (game.get_chi_options(1) if game.turn == 0 else []),
+    }
+
+    players_info = []
+    for p in game.players:
+        info = game.get_player_info(p.id)
+        players_info.append({
+            "id":      p.id,
+            "bonus":   info["bonus_tiles"],
+            "exposed": info["exposed_hand"],
+        })
+    response["players"] = players_info
+
+    return jsonify(response)
 
 @app.route("/api/discard_tile", methods=["POST"])
 def discard_tile():

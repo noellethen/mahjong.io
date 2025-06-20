@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-type GameStateResponse = {
+type PlayerInfo = {
+  id: number;
   bonus: string[];
   exposed: string[][];
+};
+
+type GameStateResponse = {
+  players: PlayerInfo[];
   hand: string[];
   current_turn: number;
   discarded_tile: string | null;
@@ -16,8 +21,6 @@ type GameStateResponse = {
 };
 
 function Gamemode() {
-  const [bonusTiles, setBonusTiles] = useState<string[]>([]);
-  const [exposedTiles, setExposedTiles] = useState<string[][]>([]);
   const [handTiles, setHandTiles] = useState<string[]>([]);
   const [discardedTiles, setDiscardedTiles] = useState<string[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(1);
@@ -29,6 +32,7 @@ function Gamemode() {
   const [winner, setWinner] = useState<number | null>(null);
   const [tai, setTai] = useState<number | null>(null);
   const [draw, setDraw]     = useState<boolean>(false);
+  const [players, setPlayers] = useState<PlayerInfo[]>([]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -49,8 +53,8 @@ function Gamemode() {
             clearInterval(intervalId);
             return;
           }
-          setBonusTiles(data.bonus);
-          setExposedTiles(data.exposed);
+          
+          setPlayers(data.players);
           setHandTiles(data.hand);
           setCurrentTurn(data.current_turn);
 
@@ -84,7 +88,6 @@ function Gamemode() {
       });
       const upd = await res.json();
       setHandTiles(upd.hand);
-      setExposedTiles(upd.exposed);
       setDiscardedTiles((prev) => prev.slice(0, -1)); // remove stolen tile
       setPossiblePong([]);
     } catch (err) {
@@ -110,7 +113,6 @@ function Gamemode() {
       });
       const upd = await res.json();
       setHandTiles(upd.hand);
-      setExposedTiles(upd.exposed);
       setDiscardedTiles((prev) => prev.slice(0, -1));
       setPossibleChi([]);
     } catch (err) {
@@ -184,79 +186,91 @@ function Gamemode() {
   }
   if (draw) {
     return (
-      <div>
-        <div className="h-screen w-full flex flex-col items-center justify-center bg-black-900 text-white">
-          <h1 className="text-5xl font-bold mb-4">No Winner</h1>
+      <div className="h-screen w-full flex flex-col bg-black-900 text-white">
+        <div className="flex-grow flex flex-col items-center justify-center">
+          <h1 className="text-4xl font-bold mb-4">No Winner</h1>
           <p className="text-2xl">The wall is exhausted.</p>
         </div>
         <div className="w-full mx-auto mb-6 flex justify-end px-4">
-            <Link
-              to="/homepage"
-              className="!text-white visited:!text-white hover:underline"
-            >
-              ← Back to Home
-            </Link>
-          </div>
+          <Link
+            to="/homepage"
+            className="!text-white visited:!text-white hover:underline"
+          >
+            ← Back to Home
+          </Link>
+        </div>
       </div>
     );
   }
 
-  const tileUrl = (tile: string) => `/tiles/${tile}.png`;
+
+  /*const tileUrl = (tile: string) => `/tiles/${tile}.png`;*/
 
   if (loading) return <div>Loading game state...</div>;
   if (error) return <div className="text-red-500">Error: {error}</div>;
 
   return (
-    <div className="full-screen-component h-screen flex flex-col items-center justify-center space-y-6">
-      <div className="text-xl font-bold text-white py-10 ">
+    <div className="full-screen-component relative h-screen flex flex-col items-center justify-center space-y-6">
+      {/* Player 4 (left)*/}
+      <div
+        className="absolute left-2 top-1/2 flex flex-row space-x-1"
+        style={{ transform: "translateY(-50%) rotate(90deg)" }}
+      >
+        {players[3]?.bonus.concat(...players[3]?.exposed).map((t, i) => (
+          <div key={i}>
+            <img
+              src={`/tiles/${t}.png`}
+              alt={t}
+              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Player 2 (right) */}
+      <div
+        className="absolute right-2 top-1/2 flex flex-row space-x-1"
+        style={{ transform: "translateY(-50%) rotate(270deg)" }}
+      >
+        {players[1]?.bonus.concat(...players[1]?.exposed).map((t, i) => (
+          <div key={i}>
+            <img
+              src={`/tiles/${t}.png`}
+              alt={t}
+              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Player turn */}
+      <div className="text-xl font-bold text-white pt-10 pb-2">
         Player {currentTurn + 1}'s turn
       </div>
-      {currentTurn === 0 && possiblePong.length > 0 && (
-        <div className="flex space-x-2 mb-4">
-          <button
-            className="px-3 py-1 bg-blue-600 text-white rounded"
-            onClick={() => doPong(possiblePong[0])}
-          >
-            Pong {possiblePong[0]}
-          </button>
-          <button
-            className="px-3 py-1 bg-red-600 text-white rounded"
-            onClick={doNoPong}
-          >
-            No Pong
-          </button>
-        </div>
-      )}
-      {currentTurn === 0 && !possiblePong.length && possibleChi.length > 0 && (
-        <div className="chi-options flex space-x-2 mb-4">
-          <span className="font-semibold text-white">Chi?</span>
-          {possibleChi.map((meld, i) => (
-            <button
-              key={i}
-              className="px-3 py-1 bg-green-600 text-white rounded shadow hover:bg-green-700"
-              onClick={() => doChi(meld)}
-            >
-              {meld.join(" ")}
-            </button>
-          ))}
-          <button
-            className="px-3 py-1 bg-red-600 text-white rounded shadow hover:bg-red-700"
-            onClick={doNoChi}
-          >
-            No
-          </button>
-        </div>
-      )}
 
+      {/* Player 3 */}
+      <div className="mb-4 flex space-x-1" style={{ transform: "rotate(180deg)" }}>
+        {players[2]?.bonus.concat(...players[2]?.exposed).map((t, i) => (
+          <div key={i}>
+            <img
+              src={`/tiles/${t}.png`}
+              alt={t}
+              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Discard pile */}
       {discardedTiles.length > 0 && (
-        <div className="absolute flex items-center justify-center flex-wrap text-xl text-white pb-25 max-w-md">
-          <div className="flex gap-3 flex-wrap justify-center">
+        <div className="absolute text-xl text-white pb-20 max-w-screen-lg">
+          <div className="grid grid-cols-12 gap-x-1 gap-y-1 justify-center">
             {discardedTiles.map((tile, idx) => (
               <div key={`discarded-${idx}`}>
                 <img
-                  src={tileUrl(tile)}
+                  src={`/tiles/${tile}.png`}
                   alt={tile}
-                  className="w-15 h-16 object-contain transition-transform duration-200 hover:scale-105"
+                  className="h-10 w-auto object-contain transition-transform duration-200 hover:scale-105"
                 />
               </div>
             ))}
@@ -264,50 +278,63 @@ function Gamemode() {
         </div>
       )}
 
-      <div className="mt-auto text-xl font-bold text-white">Player 1 (东):</div>
-
-      {/* Top row: bonus tiles */}
-      <div className="flex flex-row gap-3 items-center justify-center">
-        <p>Bonus: </p>
-        {bonusTiles.length > 0 ? (
-          bonusTiles.map((tile, idx) => (
-            <div key={`bonus-${idx}`}>
-              <img
-                src={tileUrl(tile)}
-                alt={tile}
-                className="w-15 h-16 object-contain transition-transform duration-200 hover:scale-105"
-              />
-            </div>
-          ))
-        ) : (
-          <p>No bonus tiles</p>
+      <div className="mt-auto flex items-center justify-center space-x-6 px-4 py-2 bg-black-800 w-full">
+        <div className="text-xl font-bold text-white">Player 1 (东):</div>
+        {/* Pong / Chi buttons */}
+        {currentTurn === 0 && possiblePong.length > 0 && (
+          <div className="flex space-x-2">
+            <button
+              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={() => doPong(possiblePong[0])}
+            >
+              Pong {possiblePong[0]}
+            </button>
+            <button
+              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+              onClick={doNoPong}
+            >
+              No Pong
+            </button>
+          </div>
+        )}
+        {currentTurn === 0 && !possiblePong.length && possibleChi.length > 0 && (
+          <div className="chi-options flex items-center space-x-2">
+            <span className="font-semibold text-white">Chi?</span>
+            {possibleChi.map((meld, i) => (
+              <button
+                key={i}
+                className="px-3 py-1 bg-green-600 text-white rounded shadow hover:bg-green-700"
+                onClick={() => doChi(meld)}
+              >
+                {meld.join(" ")}
+              </button>
+            ))}
+            <button
+              className="px-3 py-1 bg-red-600 text-white rounded shadow hover:bg-red-700"
+              onClick={doNoChi}
+            >
+              No
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Middle row: exposed tiles (Error 4) */}
+      {/* Player bonus + exposed */}
       <div className="flex flex-row gap-3 items-center justify-center">
-        <p>Exposed: </p>
-        {exposedTiles.length > 0 ? (
-          exposedTiles.map((meld, i) => (
-            <div key={i} className="flex gap-2">
-              {meld.map((tile, k) => (
-                <div key={`${i}-${k}`}>
-                  <img
-                    src={tileUrl(tile)}
-                    alt={tile}
-                    className="w-15 h-16 object-contain transition-transform duration-200 hover:scale-105"
-                  />
-                </div>
-              ))}
-            </div>
-          ))
-        ) : (
-          <p>No exposed tiles</p>
-        )}
+        <p>Bonus / Exposed: </p>
+        {players[0]?.bonus.concat(...players[0]?.exposed).map((tile, idx) => (
+          <div key={`meld-${idx}`}>
+            <img
+              src={`/tiles/${tile}.png`}
+              alt={tile}
+              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
+            />
+          </div>
+        ))}
       </div>
 
-      {/* Bottom row: player’s hand */}
-      <div className="flex flex-row gap-3 items-center justify-center pb-10">
+      {/* Player’s hand */}
+      <div className="flex flex-row gap-3 items-center justify-center pb-6">
         <p>Hand: </p>
         {handTiles.map((tile, idx) => (
           <div
@@ -316,9 +343,9 @@ function Gamemode() {
             className="hover:cursor-pointer"
           >
             <img
-              src={tileUrl(tile)}
+              src={`/tiles/${tile}.png`}
               alt={tile}
-              className="w-15 h-16 object-contain transition-transform duration-200 hover:scale-105"
+              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
             />
           </div>
         ))}
