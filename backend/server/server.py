@@ -7,24 +7,55 @@ from rules import can_chi, can_pong , check_win, check_win_discard, calculate_ta
 app = Flask(__name__)
 cors = CORS(app, origins='*')
 socketio = SocketIO(app, cors_allowed_origins='*', async_mode='threading')
-game = Game()
-game.start_game()
-game.last_discarder = None
-game.winner = None
-game.is_draw = False
+desired_humans = None
+socket_to_player = {}
+next_human_slot = 0
+
+game = None 
 
 @socketio.on('connect')
 def handle_connect():
-    print("Client connected: ", request.sid)
+    print("Client connected:", request.sid)   
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print("Client disconnected:", request.sid)  
 
 @socketio.on('join-game')
 def handle_join_game(data):
-    print(f"joined game with data: {data}")
-    socketio.emit('game-update', {'ok': True})
+    print(f"joined game with data: {data}")                                      
+    global desired_humans, next_human_slot, game                                 
+
+    if desired_humans is None:                                                   
+        desired_humans = data.get('numHumans', 1)                                
+        print(f"→ Desired human players: {desired_humans}")                       
+
+    slot = next_human_slot                                                        
+    socket_to_player[request.sid] = slot                                           
+    print(f"→ Assigned slot {slot} to SID {request.sid}")                          
+    next_human_slot += 1                                                           
+
+    if next_human_slot < desired_humans:                                           
+        print(f"Waiting for humans: {next_human_slot}/{desired_humans}")           
+        return                                                                     
+
+    game = Game()                                                                  
+    game.start_game()     
+    game.last_discarder = None
+    game.winner = None
+    game.is_draw = False                                                         
+    print(f"All humans joined—started game with {desired_humans} human(s) and {4-desired_humans} bot(s)")  
+
+    response = game_state()                                                        
+    payload = response.get_json()                                                  
+
+    socketio.emit('game-update', payload) 
 
 # Gamemode Page
 @app.route("/api/game_state")
 def game_state():
+    if game is None:
+        return jsonify({"waiting": True, "needed": desired_humans - next_human_slot}), 200
     game.turn = game.turn % len(game.players)
 
     if game.winner:
@@ -221,13 +252,11 @@ def pass_chi():
 
 @app.route("/api/reset", methods=["POST"])
 def reset():
-    global game
-    game = Game()
-    game.start_game()
-    game.last_discarder = None
-    game.winner = None
-    game.has_drawn = False
-    game.is_draw = False
+    global game, desired_humans, next_human_slot, socket_to_player
+    game = None
+    desired_humans = None
+    next_human_slot = 0
+    socket_to_player.clear()
     print("Game reset!")
     return jsonify({"message": "Game reset"}), 200
 
