@@ -1,15 +1,26 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_socketio import SocketIO
 from game import Game
 from rules import can_chi, can_pong , check_win, check_win_discard, calculate_tai      
 
 app = Flask(__name__)
 cors = CORS(app, origins='*')
+socketio = SocketIO(app, cors_allowed_origins='*', async_mode='threading')
 game = Game()
 game.start_game()
 game.last_discarder = None
 game.winner = None
 game.is_draw = False
+
+@socketio.on('connect')
+def handle_connect():
+    print("Client connected: ", request.sid)
+
+@socketio.on('join-game')
+def handle_join_game(data):
+    print(f"joined game with data: {data}")
+    socketio.emit('game-update', {'ok': True})
 
 # Gamemode Page
 @app.route("/api/game_state")
@@ -221,4 +232,4 @@ def reset():
     return jsonify({"message": "Game reset"}), 200
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)

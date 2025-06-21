@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import {io, Socket} from "socket.io-client";
+import { useLocation} from "react-router-dom";
 import { Link } from "react-router-dom";
 
 type PlayerInfo = {
@@ -21,6 +23,21 @@ type GameStateResponse = {
 };
 
 function Gamemode() {
+  const { state } = useLocation<{ numHumans: number }>();   // Grab the chosen human count
+  useEffect(() => {
+    const socket: Socket = io("http://localhost:5000");
+    console.log("🔷 Emitting join-game with:", state.numHumans);
+    socket.emit("join-game", { numHumans: state.numHumans });
+
+    socket.on("game-update", (payload) => {
+      console.log("🔶 Received game-update:", payload);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [state.numHumans]);
+  
   const [handTiles, setHandTiles] = useState<string[]>([]);
   const [discardedTiles, setDiscardedTiles] = useState<string[]>([]);
   const [currentTurn, setCurrentTurn] = useState<number>(1);
