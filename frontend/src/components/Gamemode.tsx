@@ -5,6 +5,7 @@ type PlayerInfo = {
   id: number;
   bonus: string[];
   exposed: string[][];
+  hand_count: number;
 };
 
 type GameStateResponse = {
@@ -212,35 +213,59 @@ function Gamemode() {
   return (
     <div className="full-screen-component relative h-screen flex flex-col items-center justify-center space-y-6">
       {/* Player 4 (left)*/}
-      <div
-        className="absolute left-2 top-1/2 flex flex-row space-x-1"
-        style={{ transform: "translateY(-50%) rotate(90deg)" }}
-      >
-        {players[3]?.bonus.concat(...players[3]?.exposed).map((t, i) => (
-          <div key={i}>
-            <img
-              src={`/tiles/${t}.png`}
-              alt={t}
-              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
-            />
-          </div>
-        ))}
+      <div className="absolute inset-y-0 left-95 flex flex-col justify-center items-center space-y-4">
+        <div className="flex flex-col space-y-1">
+          {players[3]?.bonus.concat(...players[3]?.exposed).map((t, i) => (
+            <div key={i}>
+              <img
+                src={`/tiles/${t}.png`}
+                alt={t}
+                className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-90 transition-transform duration-200 hover:scale-105"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="absolute inset-y-0 left-80 flex flex-col justify-center items-center space-y-4">
+        <div className="flex flex-col">
+          {Array.from({ length: players[3]?.hand_count ?? 0 }).map((_, i) => (
+              <img
+                key={`hidden-${i}`}
+                src="/tiles/back_green.png"
+                alt="Hidden tile"
+                className="h-[min(6vmin,2.5rem)] w-auto object-contain justify-left rotate-90 transition-transform duration-200 hover:scale-105"
+              />
+          ))}
+        </div>
       </div>
 
       {/* Player 2 (right) */}
-      <div
-        className="absolute right-2 top-1/2 flex flex-row space-x-1"
-        style={{ transform: "translateY(-50%) rotate(270deg)" }}
-      >
-        {players[1]?.bonus.concat(...players[1]?.exposed).map((t, i) => (
-          <div key={i}>
+      <div className="absolute inset-y-0 right-80 flex flex-col justify-center items-center space-y-4">
+        <div className="flex flex-col">
+          {Array.from({ length: players[1]?.hand_count ?? 0 }).map((_, i) => (
             <img
-              src={`/tiles/${t}.png`}
-              alt={t}
-              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
+              key={`hidden-${i}`}
+              src="/tiles/back_green.png"
+              alt="Hidden tile"
+              className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-270 transition-transform duration-200 hover:scale-105"
             />
-          </div>
-        ))}
+          ))}
+        </div>
+      </div>
+
+      <div className="absolute inset-y-0 right-95 flex flex-col justify-center items-center space-y-4">
+        <div className="flex flex-col pb-6">
+          {players[1]?.bonus.concat(...players[1]?.exposed).map((t, i) => (
+            <div key={i}>
+              <img
+                src={`/tiles/${t}.png`}
+                alt={t}
+                className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-270 transition-transform duration-200 hover:scale-105"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Player turn */}
@@ -249,28 +274,41 @@ function Gamemode() {
       </div>
 
       {/* Player 3 */}
-      <div className="mb-4 flex space-x-1" style={{ transform: "rotate(180deg)" }}>
-        {players[2]?.bonus.concat(...players[2]?.exposed).map((t, i) => (
-          <div key={i}>
+      <div className="absolute top-19 inset-x-0 flex flex-col items-center justify-center space-y-4">
+        <div className="flex">
+          {Array.from({ length: players[2]?.hand_count ?? 0 }).map((_, i) => (
             <img
-              src={`/tiles/${t}.png`}
-              alt={t}
-              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
+              key={`hidden-${i}`}
+              src="/tiles/back_green.png"
+              alt="Hidden tile"
+              className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-180 transition-transform duration-200 hover:scale-105"
             />
-          </div>
-        ))}
+          ))}
+        </div>
+        
+        <div className="flex justify-center space-x-1">
+          {players[2]?.bonus.concat(...players[2]?.exposed).map((t, i) => (
+            <div key={i}>
+              <img
+                src={`/tiles/${t}.png`}
+                alt={t}
+                className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-180 transition-transform duration-200 hover:scale-105"
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Discard pile */}
       {discardedTiles.length > 0 && (
-        <div className="absolute text-xl text-white pb-20 max-w-screen-lg">
-          <div className="grid grid-cols-12 gap-x-1 gap-y-1 justify-center">
+        <div className="absolute text-xl text-white pb-10 max-w-screen-lg">
+          <div className="grid grid-cols-12 space-y-1 justify-center">
             {discardedTiles.map((tile, idx) => (
               <div key={`discarded-${idx}`}>
                 <img
                   src={`/tiles/${tile}.png`}
                   alt={tile}
-                  className="h-10 w-auto object-contain transition-transform duration-200 hover:scale-105"
+                  className="h-8 w-auto object-contain transition-transform duration-200 hover:scale-105"
                 />
               </div>
             ))}
@@ -320,8 +358,7 @@ function Gamemode() {
       </div>
 
       {/* Player bonus + exposed */}
-      <div className="flex flex-row gap-3 items-center justify-center">
-        <p>Bonus / Exposed: </p>
+      <div className="flex flex-row items-center justify-center">
         {players[0]?.bonus.concat(...players[0]?.exposed).map((tile, idx) => (
           <div key={`meld-${idx}`}>
             <img
@@ -334,8 +371,7 @@ function Gamemode() {
       </div>
 
       {/* Player’s hand */}
-      <div className="flex flex-row gap-3 items-center justify-center pb-6">
-        <p>Hand: </p>
+      <div className="flex flex-row items-center justify-center pb-6">
         {handTiles.map((tile, idx) => (
           <div
             key={`hand-${idx}`}
