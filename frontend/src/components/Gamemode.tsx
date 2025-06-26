@@ -385,35 +385,10 @@ function Gamemode() {
 
   return (
     <div className="full-screen-component relative h-screen flex flex-col items-center justify-center space-y-6">
-<<<<<<< multiplayer
-      {/* Player 4 (left) - should be orderedPlayers[3] */}
-      <div
-        className="absolute left-2 top-1/2 flex flex-row space-x-1"
-        style={{ transform: "translateY(-50%) rotate(90deg)" }}
-      >
-        {orderedPlayers[3] && orderedPlayers[3].bonus.concat(...orderedPlayers[3].exposed).map((t: string, i: number) => (
-          <div key={i}>
-            <img
-              src={`/tiles/${t}.png`}
-              alt={t}
-              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Player 2 (right) - should be orderedPlayers[1] */}
-      <div
-        className="absolute right-2 top-1/2 flex flex-row space-x-1"
-        style={{ transform: "translateY(-50%) rotate(270deg)" }}
-      >
-        {orderedPlayers[1] && orderedPlayers[1].bonus.concat(...orderedPlayers[1].exposed).map((t: string, i: number) => (
-          <div key={i}>
-=======
       {/* Player 4 (left)*/}
       <div className="absolute inset-y-0 left-95 flex flex-col justify-center items-center space-y-4">
         <div className="flex flex-col space-y-1">
-          {players[3]?.bonus.concat(...players[3]?.exposed).map((t, i) => (
+          {orderedPlayers[3] && orderedPlayers[3].bonus.concat(...orderedPlayers[3].exposed).map((t: string, i: number) => (
             <div key={i}>
               <img
                 src={`/tiles/${t}.png`}
@@ -442,7 +417,6 @@ function Gamemode() {
       <div className="absolute inset-y-0 right-80 flex flex-col justify-center items-center space-y-4">
         <div className="flex flex-col">
           {Array.from({ length: players[1]?.hand_count ?? 0 }).map((_, i) => (
->>>>>>> main
             <img
               key={`hidden-${i}`}
               src="/tiles/back_green.png"
@@ -455,7 +429,7 @@ function Gamemode() {
 
       <div className="absolute inset-y-0 right-95 flex flex-col justify-center items-center space-y-4">
         <div className="flex flex-col pb-6">
-          {players[1]?.bonus.concat(...players[1]?.exposed).map((t, i) => (
+          {orderedPlayers[1] && orderedPlayers[1].bonus.concat(...orderedPlayers[1].exposed).map((t: string, i: number) => (
             <div key={i}>
               <img
                 src={`/tiles/${t}.png`}
@@ -467,22 +441,10 @@ function Gamemode() {
         </div>
       </div>
 
-<<<<<<< multiplayer
-      {/* Player 3 (top) - should be orderedPlayers[2] */}
-      <div className="mb-4 flex space-x-1" style={{ transform: "rotate(180deg)" }}>
-        {orderedPlayers[2] && orderedPlayers[2].bonus.concat(...orderedPlayers[2].exposed).map((t: string, i: number) => (
-          <div key={i}>
-=======
-      {/* Player turn */}
-      <div className="text-xl font-bold text-white pt-10 pb-2">
-        Player {currentTurn + 1}'s turn
-      </div>
-
       {/* Player 3 */}
       <div className="absolute top-19 inset-x-0 flex flex-col items-center justify-center space-y-4">
         <div className="flex">
           {Array.from({ length: players[2]?.hand_count ?? 0 }).map((_, i) => (
->>>>>>> main
             <img
               key={`hidden-${i}`}
               src="/tiles/back_green.png"
@@ -493,7 +455,7 @@ function Gamemode() {
         </div>
         
         <div className="flex justify-center space-x-1">
-          {players[2]?.bonus.concat(...players[2]?.exposed).map((t, i) => (
+          {orderedPlayers[2] && orderedPlayers[2].bonus.concat(...orderedPlayers[2].exposed).map((t: string, i: number) => (
             <div key={i}>
               <img
                 src={`/tiles/${t}.png`}
@@ -519,17 +481,10 @@ function Gamemode() {
       </div>
 
       {/* Discard pile */}
-<<<<<<< multiplayer
       {discardPile.length > 0 && (
         <div className="absolute text-xl text-white pb-20 max-w-screen-lg">
           <div className="grid grid-cols-12 gap-x-1 gap-y-1 justify-center">
             {discardPile.map((tile: string, idx: number) => (
-=======
-      {discardedTiles.length > 0 && (
-        <div className="absolute text-xl text-white pb-10 max-w-screen-lg">
-          <div className="grid grid-cols-12 space-y-1 justify-center">
-            {discardedTiles.map((tile, idx) => (
->>>>>>> main
               <div key={`discarded-${idx}`}>
                 <img
                   src={`/tiles/${tile}.png`}
@@ -586,14 +541,9 @@ function Gamemode() {
       </div>
 
       {/* Player bonus + exposed */}
-<<<<<<< multiplayer
       <div className="flex flex-row gap-3 items-center justify-center">
         <p>Bonus / Exposed: </p>
         {orderedPlayers[0]?.bonus.concat(...orderedPlayers[0]?.exposed).map((t: string, idx: number) => (
-=======
-      <div className="flex flex-row items-center justify-center">
-        {players[0]?.bonus.concat(...players[0]?.exposed).map((tile, idx) => (
->>>>>>> main
           <div key={`meld-${idx}`}>
             <img
               src={`/tiles/${t}.png`}
@@ -604,16 +554,10 @@ function Gamemode() {
         ))}
       </div>
 
-<<<<<<< multiplayer
       {/* Player's hand */}
       <div className="flex flex-row gap-3 items-center justify-center pb-6">
         <p>Hand: </p>
         {handTiles.map((tile: string, idx: number) => (
-=======
-      {/* Player’s hand */}
-      <div className="flex flex-row items-center justify-center pb-6">
-        {handTiles.map((tile, idx) => (
->>>>>>> main
           <div
             key={`hand-${idx}`}
             onClick={() => handleTileClick(tile, idx)}
