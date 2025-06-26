@@ -185,6 +185,7 @@ def game_state():
             "bonus": player_info["bonus_tiles"],
             "exposed": player_info["exposed_hand"],
             "hand": player_info["hand"],
+            "hand_count": len(player_info["hand"]),
             "possiblePong": [],
             "possibleChi": []
         }

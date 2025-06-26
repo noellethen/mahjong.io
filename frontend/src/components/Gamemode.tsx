@@ -15,6 +15,7 @@ type HumanPlayerInfo = {
   bonus: string[];
   exposed: string[][];
   hand: string[];
+  hand_count: number;
   possiblePong: string[];
   possibleChi: string[][];
 };
@@ -68,6 +69,7 @@ function Gamemode() {
   const [tai, setTai] = useState<number | null>(null);
   const [draw, setDraw] = useState<boolean>(false);
   const [players, setPlayers] = useState<HumanPlayerInfo[]>([]);
+  const [allPlayers, setAllPlayers] = useState<PlayerInfo[]>([]);
   const [waiting, setWaiting] = useState<boolean>(false);
   const [needed, setNeeded] = useState<number>(0);
   const [waitingForChiPong, setWaitingForChiPong] = useState<boolean>(false);
@@ -99,6 +101,7 @@ function Gamemode() {
           
           setWaiting(false);
           setPlayers(data.players);
+          setAllPlayers(data.all_players);
           
           let currentPlayerData = null;
           
@@ -276,6 +279,13 @@ function Gamemode() {
     hand: string[];
   };
 
+  type AllPlayerType = {
+    id: number;
+    bonus: string[];
+    exposed: string[][];
+    hand_count: number;
+  };
+
   function getPlayerOrder(players: PlayerType[], currentPlayerId: number): PlayerType[] {
     if (!players || players.length === 0) return [];
     const fullPlayers: PlayerType[] = [];
@@ -294,6 +304,32 @@ function Gamemode() {
     }
     const currentPlayerIndex = currentPlayerId - 1;
     const rotated: PlayerType[] = [];
+    for (let i = 0; i < 4; i++) {
+      const index = (currentPlayerIndex + i) % 4;
+      rotated.push(fullPlayers[index]);
+    }
+    
+    return rotated;
+  }
+
+  function getAllPlayerOrder(allPlayers: AllPlayerType[], currentPlayerId: number): AllPlayerType[] {
+    if (!allPlayers || allPlayers.length === 0) return [];
+    const fullPlayers: AllPlayerType[] = [];
+    for (let i = 1; i <= 4; i++) {
+      const player = allPlayers.find(p => p.id === i);
+      if (player) {
+        fullPlayers.push(player);
+      } else {
+        fullPlayers.push({
+          id: i,
+          bonus: [],
+          exposed: [],
+          hand_count: 0
+        });
+      }
+    }
+    const currentPlayerIndex = currentPlayerId - 1;
+    const rotated: AllPlayerType[] = [];
     for (let i = 0; i < 4; i++) {
       const index = (currentPlayerIndex + i) % 4;
       rotated.push(fullPlayers[index]);
@@ -377,10 +413,13 @@ function Gamemode() {
     );
   }
   const orderedPlayers = getPlayerOrder(players as PlayerType[], playerId);
+  const orderedAllPlayers = getAllPlayerOrder(allPlayers as AllPlayerType[], playerId);
   console.log("Player data:", {
     playerId,
     players: players as PlayerType[],
-    orderedPlayers: orderedPlayers.map((p, i) => ({ index: i, player_id: p.player_id, exposed: p.exposed }))
+    allPlayers: allPlayers as AllPlayerType[],
+    orderedPlayers: orderedPlayers.map((p, i) => ({ index: i, player_id: p.player_id, exposed: p.exposed })),
+    orderedAllPlayers: orderedAllPlayers.map((p, i) => ({ index: i, id: p.id, exposed: p.exposed, hand_count: p.hand_count }))
   });
 
   return (
@@ -388,7 +427,7 @@ function Gamemode() {
       {/* Player 4 (left)*/}
       <div className="absolute inset-y-0 left-95 flex flex-col justify-center items-center space-y-4">
         <div className="flex flex-col space-y-1">
-          {orderedPlayers[3] && orderedPlayers[3].bonus.concat(...orderedPlayers[3].exposed).map((t: string, i: number) => (
+          {orderedAllPlayers[3] && orderedAllPlayers[3].bonus.concat(...orderedAllPlayers[3].exposed).map((t: string, i: number) => (
             <div key={i}>
               <img
                 src={`/tiles/${t}.png`}
@@ -402,7 +441,7 @@ function Gamemode() {
 
       <div className="absolute inset-y-0 left-80 flex flex-col justify-center items-center space-y-4">
         <div className="flex flex-col">
-          {Array.from({ length: players[3]?.hand_count ?? 0 }).map((_, i) => (
+          {Array.from({ length: orderedAllPlayers[3]?.hand_count ?? 0 }).map((_, i) => (
               <img
                 key={`hidden-${i}`}
                 src="/tiles/back_green.png"
@@ -416,7 +455,7 @@ function Gamemode() {
       {/* Player 2 (right) */}
       <div className="absolute inset-y-0 right-80 flex flex-col justify-center items-center space-y-4">
         <div className="flex flex-col">
-          {Array.from({ length: players[1]?.hand_count ?? 0 }).map((_, i) => (
+          {Array.from({ length: orderedAllPlayers[1]?.hand_count ?? 0 }).map((_, i) => (
             <img
               key={`hidden-${i}`}
               src="/tiles/back_green.png"
@@ -429,7 +468,7 @@ function Gamemode() {
 
       <div className="absolute inset-y-0 right-95 flex flex-col justify-center items-center space-y-4">
         <div className="flex flex-col pb-6">
-          {orderedPlayers[1] && orderedPlayers[1].bonus.concat(...orderedPlayers[1].exposed).map((t: string, i: number) => (
+          {orderedAllPlayers[1] && orderedAllPlayers[1].bonus.concat(...orderedAllPlayers[1].exposed).map((t: string, i: number) => (
             <div key={i}>
               <img
                 src={`/tiles/${t}.png`}
@@ -441,10 +480,15 @@ function Gamemode() {
         </div>
       </div>
 
+      {/* Player turn */}
+      <div className="text-xl font-bold text-white pt-10 pb-2">
+        Player {currentTurn + 1}'s turn
+      </div>
+
       {/* Player 3 */}
       <div className="absolute top-19 inset-x-0 flex flex-col items-center justify-center space-y-4">
         <div className="flex">
-          {Array.from({ length: players[2]?.hand_count ?? 0 }).map((_, i) => (
+          {Array.from({ length: orderedAllPlayers[2]?.hand_count ?? 0 }).map((_, i) => (
             <img
               key={`hidden-${i}`}
               src="/tiles/back_green.png"
@@ -455,7 +499,7 @@ function Gamemode() {
         </div>
         
         <div className="flex justify-center space-x-1">
-          {orderedPlayers[2] && orderedPlayers[2].bonus.concat(...orderedPlayers[2].exposed).map((t: string, i: number) => (
+          {orderedAllPlayers[2] && orderedAllPlayers[2].bonus.concat(...orderedAllPlayers[2].exposed).map((t: string, i: number) => (
             <div key={i}>
               <img
                 src={`/tiles/${t}.png`}
@@ -465,19 +509,6 @@ function Gamemode() {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Player turn */}
-      <div className="text-xl font-bold text-white pt-10 pb-2">
-        Player {currentTurn + 1}'s turn
-        {playerId && currentTurn === playerId - 1 && " (Your turn!)"}
-        {playerId && (
-          <div className="text-sm text-gray-300 mt-1">
-            You are Player {playerId}
-            {currentTurn === playerId - 1 && " - Click a tile to discard"}
-            {currentTurn !== playerId - 1 && " - Waiting for other players"}
-          </div>
-        )}
       </div>
 
       {/* Discard pile */}
@@ -543,7 +574,7 @@ function Gamemode() {
       {/* Player bonus + exposed */}
       <div className="flex flex-row gap-3 items-center justify-center">
         <p>Bonus / Exposed: </p>
-        {orderedPlayers[0]?.bonus.concat(...orderedPlayers[0]?.exposed).map((t: string, idx: number) => (
+        {orderedAllPlayers[0]?.bonus.concat(...orderedAllPlayers[0]?.exposed).map((t: string, idx: number) => (
           <div key={`meld-${idx}`}>
             <img
               src={`/tiles/${t}.png`}
