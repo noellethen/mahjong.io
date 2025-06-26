@@ -1,10 +1,30 @@
 import type { MouseEvent } from "react";
+import { useState } from "react";                   
 import { UserAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";     
 
 function Homepage() {
   const navigate = useNavigate();
   const { session, signOut } = UserAuth();
+  const [showPicker, setShowPicker] = useState(false);
+
+  const handlePlay = async (numHumans: number) => {
+    try {
+      const res = await fetch("/api/game_state");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (data.winner !== undefined || data.draw) {
+        await fetch("/api/reset", { method: "POST" });
+        console.log("Game was finished—resetting before new round.");
+      }
+    } catch (err) {
+      console.error("Error starting game:", err);
+    } finally {
+      // Always navigate afterwards, passing numHumans
+      navigate("/gamemode", { state: { numHumans } });
+    }
+  };
 
   const handleSignOut = async (e: MouseEvent<HTMLParagraphElement>) => {
     e.preventDefault();
@@ -13,22 +33,6 @@ function Homepage() {
       navigate("/");
     } catch (error) {
       console.error(error);
-    }
-  };
-
- const handlePlay = async () => {
-    try {
-      const res = await fetch("/api/game_state");
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.winner !== undefined || data.draw) {
-        await fetch("/api/reset", { method: "POST" });
-        console.log("Game was finished—resetting before new round.");
-      }
-      navigate("/gamemode");
-    } catch (err) {
-      console.error("Error starting game:", err);
-      navigate("/gamemode");
     }
   };
 
@@ -43,7 +47,7 @@ function Homepage() {
 
           <div className="flex flex-col space-y-4 w-40">
             <button
-              onClick={handlePlay}
+              onClick={() => setShowPicker(true)}
               className="w-full rounded-md border px-4 py-2"
               style={{ backgroundColor: "goldenrod" }}
             >
@@ -75,6 +79,30 @@ function Homepage() {
           </p>
         </div>
       </div>
+
+      {showPicker && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-black p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">
+              How many human players?
+            </h2>
+            <div className="flex space-x-2">
+              {[1, 2, 3, 4].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => {
+                    setShowPicker(false);     
+                    handlePlay(n);            
+                  }}
+                  className="px-4 py-2 border rounded-md"
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

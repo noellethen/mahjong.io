@@ -15,9 +15,9 @@ from rules import (
 from bot import smart_discard
 
 class Game:
-    def __init__(self):
+    def __init__(self, human_players=None):
         self.players = [Player(i) for i in range(1, 5)]
-        self.interactive_player_id = 1 # Player 1 can choose tiles to discard, the rest are bots
+        self.human_players = human_players or [1]  
         self.wall = generate_full_wall()
         random.shuffle(self.wall)
         self.turn = 0
@@ -25,6 +25,8 @@ class Game:
         self.has_drawn = False
         self.is_draw = False
         self.last_discard = None
+        self.last_discarder = -1  
+        self.discard_pile = []  
 
     def deal_tiles(self):
         for i in range(13):
@@ -52,12 +54,13 @@ class Game:
             print(f"Discarded tile {discarded_tile} from Player {player_id}")
             player.hand = self.sort_tiles(player.hand)
             self.last_discard = discarded_tile
+            self.discard_pile.append(discarded_tile)
         else:
             print(f"Error: Tile {discarded_tile} not found in Player {player_id}'s hand!")
 
     def bot_discard(self):
         current_player = self.players[self.turn]
-        if current_player.id != self.interactive_player_id:
+        if current_player.id not in self.human_players:
             discarded_tile = smart_discard(current_player.hand)
             if not discarded_tile or discarded_tile not in current_player.hand:
                 if current_player.hand:
@@ -133,10 +136,8 @@ class Game:
                 break
 
         for responder in responders:
-            interactive = (responder.id == self.interactive_player_id)
-
+            interactive = (responder.id in self.human_players)
             # Anyone can Pong/Gang
-
             if can_gang(responder.hand, discarded_tile):
                 if interactive:
                     print(f"\nPlayer {responder.id}, discarded tile is {discarded_tile}")
@@ -166,10 +167,9 @@ class Game:
                 return True
             
             # Only next player can Chi
-
             next_player = responders[0]
             next_player_id = next_player.id
-            interactive_chi = (next_player_id == self.interactive_player_id)
+            interactive_chi = (next_player_id in self.human_players)
             if can_chi(next_player.hand, discarded_tile):
                 if interactive_chi:
                     print(f"\nPlayer {next_player_id}, discarded tile is {discarded_tile}")
@@ -196,8 +196,16 @@ class Game:
         hand = self.players[player_id - 1].hand
         discard = self.last_discard
         options = []
-        if not discard:
+        if not discard or self.last_discarder == -1:
             return options
+        
+        discarder_idx = self.last_discarder
+        next_player_idx = (discarder_idx + 1) % len(self.players)
+        next_player_id = next_player_idx + 1  
+        
+        if player_id != next_player_id:
+            return options
+            
         for pair in find_valid_chis(hand, discard):
             meld = sorted(pair + [discard], key=lambda t: (t[1], int(t[0])))
             options.append(meld)
@@ -210,6 +218,14 @@ class Game:
     def pass_pong(self):
         print("Player passed Pong")
         return 
+    
+    def remove_from_discard_pile(self, tile):
+        if tile in self.discard_pile:
+            self.discard_pile.remove(tile)
+            print(f"Removed {tile} from discard pile")
+    
+    def get_discard_pile(self):
+        return self.discard_pile.copy()
     
     def start_game(self):
         self.deal_tiles()
