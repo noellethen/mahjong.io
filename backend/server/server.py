@@ -226,6 +226,7 @@ def game_state():
             "id": p.id,
             "bonus": info["bonus_tiles"],
             "exposed": info["exposed_hand"],
+            "hand_count": len(info["hand"])
         })
     response["all_players"] = all_players_info
 
