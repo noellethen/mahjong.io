@@ -8,6 +8,7 @@ function Homepage() {
   const { session, signOut } = UserAuth();
   const [showPicker, setShowPicker] = useState(false);
   const [showOtherGames, setShowOtherGames] = useState(false);
+  const [showSkins, setShowSkins] = useState(false);
 
   const handlePlay = async (numHumans: number) => {
     try {
@@ -22,7 +23,6 @@ function Homepage() {
     } catch (err) {
       console.error("Error starting game:", err);
     } finally {
-      // Always navigate afterwards, passing numHumans
       navigate("/gamemode", { state: { numHumans } });
     }
   };
@@ -56,11 +56,11 @@ function Homepage() {
             </button>
 
             <button
-              onClick={() => navigate("/shop")}
+              onClick={() => setShowSkins(true)}
               className="w-full rounded-md border px-4 py-2"
               style={{ backgroundColor: "goldenrod" }}
             >
-              Shop
+              Skins
             </button>
 
             <button
@@ -138,6 +138,40 @@ function Homepage() {
           </div>
         </div>
       )}
+
+      {showSkins && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-black p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">
+              What would you like to do?
+            </h2>
+            <div
+              className="flex flex-col space-y-2 w-40 mx-auto"   
+            >
+              <button
+                onClick={() => {
+                  setShowOtherGames(false);
+                  navigate("/shop");
+                }}
+                className="w-full rounded-md border px-4 py-2"
+                style={{ backgroundColor: "goldenrod" }}
+              >
+                Shop
+              </button>
+              <button
+                onClick={() => {
+                  setShowOtherGames(false);
+                  navigate("/customise");
+                }}
+                className="w-full rounded-md border px-4 py-2"
+                style={{ backgroundColor: "goldenrod" }}
+              >
+                Customise
+              </button>
+            </div>
+          </div>
+        </div>
+      )} 
     </>
   );
 }
