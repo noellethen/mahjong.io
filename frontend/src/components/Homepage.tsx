@@ -7,6 +7,7 @@ function Homepage() {
   const navigate = useNavigate();
   const { session, signOut } = UserAuth();
   const [showPicker, setShowPicker] = useState(false);
+  const [showOtherGames, setShowOtherGames] = useState(false);
 
   const handlePlay = async (numHumans: number) => {
     try {
@@ -63,11 +64,11 @@ function Homepage() {
             </button>
 
             <button
-              onClick={() => navigate("/customise")}
+              onClick={() => setShowOtherGames(true)}
               className="w-full rounded-md border px-4 py-2"
               style={{ backgroundColor: "goldenrod" }}
             >
-              Customise
+              Other Games
             </button>
           </div>
 
@@ -99,6 +100,40 @@ function Homepage() {
                   {n}
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showOtherGames && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-black p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">
+              Choose Game Mode
+            </h2>
+            <div
+              className="flex flex-col space-y-2 w-40 mx-auto"   
+            >
+              <button
+                onClick={() => {
+                  setShowOtherGames(false);
+                  navigate("/tutorial");
+                }}
+                className="w-full rounded-md border px-4 py-2"
+                style={{ backgroundColor: "goldenrod" }}
+              >
+                Tutorial
+              </button>
+              <button
+                onClick={() => {
+                  setShowOtherGames(false);
+                  navigate("/quiz");
+                }}
+                className="w-full rounded-md border px-4 py-2"
+                style={{ backgroundColor: "goldenrod" }}
+              >
+                Quiz
+              </button>
             </div>
           </div>
         </div>
