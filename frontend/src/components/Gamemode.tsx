@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {io, Socket} from "socket.io-client";
 import { useLocation} from "react-router-dom";
 import { Link } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 type PlayerInfo = {
   id: number;
@@ -37,6 +38,34 @@ type GameStateResponse = {
 function Gamemode() {
   const { state } = useLocation();   
   const [playerId, setPlayerId] = useState<number | null>(null);
+  const [equippedSkin, setEquippedSkin] = useState<string>("green");
+
+  const skinMap = useMemo(() => ({
+    green:  "/tiles/back_green.png",
+    red:    "/designs/back_red.png",
+    orange: "/designs/back_orange.png",
+    yellow: "/designs/back_yellow.png",
+    blue:   "/designs/back_blue.png",
+    pink:   "/designs/back_pink.png",
+  }), []);
+
+  useEffect(() => {
+    const loadSkin = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("equipped_skin")
+        .eq("id", user.id)
+        .single();
+      if (!error && data?.equipped_skin) {
+        setEquippedSkin(data.equipped_skin);
+      }
+    };
+    loadSkin();
+  }, []);
   
   useEffect(() => {
     const socket: Socket = io("http://localhost:5000");
@@ -377,9 +406,6 @@ function Gamemode() {
     );
   }
 
-
-  /*const tileUrl = (tile: string) => `/tiles/${tile}.png`;*/
-
   if (loading) return <div>Loading game state...</div>;
   if (error) return <div className="text-red-500">Error: {error}</div>;
   
@@ -444,7 +470,7 @@ function Gamemode() {
           {Array.from({ length: orderedAllPlayers[3]?.hand_count ?? 0 }).map((_, i) => (
               <img
                 key={`hidden-${i}`}
-                src="/tiles/back_green.png"
+                src={skinMap[equippedSkin]}
                 alt="Hidden tile"
                 className="h-[min(6vmin,2.5rem)] w-auto object-contain justify-left rotate-90 transition-transform duration-200 hover:scale-105"
               />
@@ -458,7 +484,7 @@ function Gamemode() {
           {Array.from({ length: orderedAllPlayers[1]?.hand_count ?? 0 }).map((_, i) => (
             <img
               key={`hidden-${i}`}
-              src="/tiles/back_green.png"
+              src={skinMap[equippedSkin]}
               alt="Hidden tile"
               className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-270 transition-transform duration-200 hover:scale-105"
             />
@@ -491,7 +517,7 @@ function Gamemode() {
           {Array.from({ length: orderedAllPlayers[2]?.hand_count ?? 0 }).map((_, i) => (
             <img
               key={`hidden-${i}`}
-              src="/tiles/back_green.png"
+              src={skinMap[equippedSkin]}
               alt="Hidden tile"
               className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-180 transition-transform duration-200 hover:scale-105"
             />

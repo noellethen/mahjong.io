@@ -11,10 +11,12 @@ interface ItemType {
 }
 
 const allItems: ItemType[] = [
-  { key: 'skin_0',  name: 'Skin 0',  imageUrl: '/skins/0.png',  type: 'skin'  },
-  { key: 'skin_1',  name: 'Skin 1',  imageUrl: '/skins/1.png',  type: 'skin'  },
-  { key: 'skin_2',  name: 'Skin 2',  imageUrl: '/skins/2.png',  type: 'skin'  },
-  { key: 'skin_3',  name: 'Skin 3',  imageUrl: '/skins/3.png',  type: 'skin'  },
+  { key: 'green',  name: 'Green (Default)',  imageUrl: '/tiles/back_green.png',  type: 'skin'  },
+  { key: 'red',  name: 'Red',  imageUrl: '/designs/back_red.png',  type: 'skin'  },
+  { key: 'orange',  name: 'Orange',  imageUrl: '/designs/back_orange.png',  type: 'skin'  },
+  { key: 'yellow',  name: 'Yellow',  imageUrl: '/designs/back_yellow.png',  type: 'skin'  },
+  { key: 'blue',  name: 'Blue',  imageUrl: '/designs/back_blue.png',  type: 'skin'  },
+  { key: 'pink',  name: 'Pink',  imageUrl: '/designs/back_pink.png',  type: 'skin'  },
   { key: 'table_0', name: 'Table 0', imageUrl: '/tables/0.png', type: 'table' },
   { key: 'table_1', name: 'Table 1', imageUrl: '/tables/1.png', type: 'table' },
 ];
@@ -40,7 +42,7 @@ const OwnedItem: React.FC<OwnedItemProps> = ({ item, onEquip, equipped }) => (
     <img
       src={item.imageUrl}
       alt={item.name}
-      className="h-40 w-full object-cover"
+      className="h-40 w-full object-contain"
     />
     <div className="p-4 flex flex-col flex-grow">
       <h3 className="text-lg font-semibold mb-2 text-white h-10 overflow-hidden whitespace-nowrap overflow-ellipsis">
@@ -62,9 +64,10 @@ const OwnedItem: React.FC<OwnedItemProps> = ({ item, onEquip, equipped }) => (
 /* Customise Page */
 const Customise: React.FC = () => {
   const [flags, setFlags] = useState<Record<string, boolean>>({});
-  const [equippedSkin, setEquippedSkin] = useState('skin_0');
+  const [equippedSkin, setEquippedSkin] = useState('green');
   const [equippedTable, setEquippedTable] = useState('table_0');
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<'skins' | 'tables'>('skins');
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -128,35 +131,72 @@ const Customise: React.FC = () => {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl text-white mb-6">Customize Your Avatar</h1>
-      <h2 className="text-white mb-2">Skins (equipped: {equippedSkin})</h2>
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        {allItems
-          .filter(i => i.type === 'skin' && flags[i.key])
-          .map(i => (
-            <OwnedItem
-              key={i.key}
-              item={i}
-              onEquip={handleEquip}
-              equipped={i.key === equippedSkin}
-            />
-          ))}
+    <div className="min-h-screen bg-black-900 py-8 px-4">
+      <h1 className="text-3xl font-bold text-center text-white mb-4">
+        Customise
+      </h1>
+      <div className="flex justify-center mb-6 py-10">
+        <div className="relative inline-flex bg-gray-800 rounded-full p-1">
+          <div
+            className="absolute top-1 bottom-1 w-1/2 bg-goldenrod rounded-full transition-all duration-300"
+            style={{ left: tab === 'skins' ? '0%' : '50%' }}
+          />
+          <button
+            onClick={() => setTab('skins')}
+            className="px-6 py-2 rounded-l-full border border-gray-600 text-black"
+            style={{
+              backgroundColor: tab === 'skins' ? 'goldenrod' : '#b8860b',
+              color: tab === 'skins' ? 'white'    : 'black',
+            }}
+          >
+            Tiles
+          </button>
+          <button
+            onClick={() => setTab('tables')}
+            className="px-6 py-2 rounded-l-full border border-gray-600 text-black"
+            style={{
+              backgroundColor: tab === 'tables' ? 'goldenrod' : '#b8860b',
+              color: tab === 'tables' ? 'white'    : 'black',
+            }}
+          >
+            Boards
+          </button>
+        </div>
       </div>
 
-      <h2 className="text-white mb-2">Tables (equipped: {equippedTable})</h2>
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        {allItems
-          .filter(i => i.type === 'table' && flags[i.key])
-          .map(i => (
-            <OwnedItem
-              key={i.key}
-              item={i}
-              onEquip={handleEquip}
-              equipped={i.key === equippedTable}
-            />
-          ))}
-      </div>
+      {tab === 'skins' && (
+        <>
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            {allItems
+              .filter(i => i.type === 'skin' && flags[i.key])
+              .map(i => (
+                <OwnedItem
+                  key={i.key}
+                  item={i}
+                  onEquip={handleEquip}
+                  equipped={i.key === equippedSkin}
+                />
+              ))}
+          </div>
+        </>
+      )}
+
+      {tab === 'tables' && (
+        <>
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            {allItems
+              .filter(i => i.type === 'table' && flags[i.key])
+              .map(i => (
+                <OwnedItem
+                  key={i.key}
+                  item={i}
+                  onEquip={handleEquip}
+                  equipped={i.key === equippedTable}
+                />
+              ))}
+          </div>
+        </>
+      )}
 
       <div className="max-w-6xl mx-auto mt-6 flex justify-end">
         <Link
