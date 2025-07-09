@@ -12,10 +12,13 @@ interface ShopItemType {
 }
 
 const shopItems: ShopItemType[] = [
-  { id: 1, key: 'skin_1',  name: 'Skin 1',  price: 1000,   imageUrl: 'link1' },
-  { id: 2, key: 'skin_2',  name: 'Skin 2',  price: 2000,   imageUrl: 'link2' },
-  { id: 3, key: 'skin_3',  name: 'Skin 3',  price: 5000,   imageUrl: 'link3' },
-  { id: 4, key: 'table_1', name: 'Table 1', price: 10000,  imageUrl: 'link4' },
+  { id: 0, key: 'green',  name: 'Green (Default)',  price: 1000,   imageUrl: '/tiles/back_green.png' },
+  { id: 1, key: 'red',  name: 'Red',  price: 1000,   imageUrl: '/designs/back_red.png' },
+  { id: 2, key: 'orange',  name: 'Orange',  price: 1000,   imageUrl: '/designs/back_orange.png' },
+  { id: 3, key: 'yellow',  name: 'Yellow',  price: 1000,   imageUrl: '/designs/back_yellow.png' },
+  { id: 4, key: 'blue',  name: 'Blue',  price: 1000,   imageUrl: '/designs/back_blue.png' },
+  { id: 5, key: 'pink',  name: 'Pink',  price: 1000,   imageUrl: '/designs/back_pink.png' },
+  { id: 6, key: 'table_1', name: 'Table 1', price: 10000,  imageUrl: 'link4' },
 ];
 
 type ProfileData = {
@@ -96,7 +99,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, onBuySuccess, owned }) => {
       <img
         src={item.imageUrl}
         alt={item.name}
-        className="h-40 w-full object-cover"
+        className="h-40 w-full object-contain"
       />
       <div className="p-4 flex flex-col flex-grow">
         <h3 className="text-lg font-semibold mb-2 text-white h-10 overflow-hidden whitespace-nowrap overflow-ellipsis">
@@ -126,6 +129,7 @@ const Shop: React.FC = () => {
   const [coins, setCoins] = useState<number>(0);
   const [flags, setFlags] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<'tiles' | 'boards'>('tiles');
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -163,6 +167,12 @@ const Shop: React.FC = () => {
     fetchProfile();
   }, []);
 
+  const filteredItems = shopItems.filter(item =>
+    tab === 'tiles'
+      ? !item.key.startsWith('table')
+      : item.key.startsWith('table')
+  );
+
   return (
     <div className="min-h-screen bg-black-900 py-8 px-4">
       <h1 className="text-3xl font-bold text-center text-white mb-4">
@@ -177,8 +187,32 @@ const Shop: React.FC = () => {
           </p>
         )}
       </div>
+
+      <div className="flex justify-center mb-6">
+        <button
+          onClick={() => setTab('tiles')}
+          className="px-6 py-2 rounded-l-full border border-gray-600 text-black"
+          style={{
+            backgroundColor: tab === 'tiles' ? 'goldenrod' : '#b8860b',
+            color: tab === 'tiles' ? 'white'    : 'black',
+          }}
+        >
+          Tiles
+        </button>
+        <button
+          onClick={() => setTab('boards')}
+          className="px-6 py-2 rounded-r-full border border-gray-600 text-black"
+          style={{
+            backgroundColor: tab === 'boards' ? 'goldenrod' : '#b8860b',
+            color: tab === 'boards' ? 'white' : 'black',
+          }}
+        >
+          Boards
+        </button>
+      </div>
+
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {shopItems.map(item => (
+        {filteredItems.map(item => (
           <ShopItem
             key={item.id}
             item={item}
@@ -187,6 +221,7 @@ const Shop: React.FC = () => {
           />
         ))}
       </div>
+
       <div className="max-w-6xl mx-auto mt-6 flex justify-end">
         <Link
           to="/homepage"
