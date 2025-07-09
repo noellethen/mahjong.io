@@ -68,7 +68,7 @@ function Homepage() {
               className="w-full rounded-md border px-4 py-2"
               style={{ backgroundColor: "goldenrod" }}
             >
-              Other Games
+              Game Modes
             </button>
           </div>
 
@@ -82,8 +82,14 @@ function Homepage() {
       </div>
 
       {showPicker && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-black p-6 rounded-lg shadow-lg">
+       <div
+         className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+         onClick={() => setShowPicker(false)}
+       >
+         <div
+           className="bg-black p-6 rounded-lg shadow-lg"
+           onClick={e => e.stopPropagation()}
+         >
             <h2 className="text-xl font-semibold mb-4">
               How many human players?
             </h2>
@@ -106,8 +112,14 @@ function Homepage() {
       )}
 
       {showOtherGames && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-black p-6 rounded-lg shadow-lg">
+       <div
+         className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+         onClick={() => setShowOtherGames(false)}
+       >
+         <div
+           className="bg-black p-6 rounded-lg shadow-lg"
+           onClick={e => e.stopPropagation()}
+         >
             <h2 className="text-xl font-semibold mb-4">
               Choose Game Mode
             </h2>
@@ -140,8 +152,14 @@ function Homepage() {
       )}
 
       {showSkins && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-black p-6 rounded-lg shadow-lg">
+       <div
+         className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+         onClick={() => setShowSkins(false)}
+       >
+         <div
+           className="bg-black p-6 rounded-lg shadow-lg"
+           onClick={e => e.stopPropagation()}
+         >
             <h2 className="text-xl font-semibold mb-4">
               What would you like to do?
             </h2>
@@ -150,7 +168,7 @@ function Homepage() {
             >
               <button
                 onClick={() => {
-                  setShowOtherGames(false);
+                  setShowSkins(false);
                   navigate("/shop");
                 }}
                 className="w-full rounded-md border px-4 py-2"
@@ -160,7 +178,7 @@ function Homepage() {
               </button>
               <button
                 onClick={() => {
-                  setShowOtherGames(false);
+                  setShowSkins(false);
                   navigate("/customise");
                 }}
                 className="w-full rounded-md border px-4 py-2"
