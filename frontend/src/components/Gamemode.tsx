@@ -71,11 +71,9 @@ function Gamemode() {
     const socket: Socket = io("http://localhost:5000");
     console.log("Emitting join-game with:", state.numHumans);
     
-    // Check if there's an existing game state before calling rejoin
     fetch("/api/game_state")
       .then((res) => res.json())
       .then((data) => {
-        // Only call rejoin if there's an existing game (not waiting for players)
         if (!data.waiting && data.needed === undefined) {
           console.log("Existing game detected - calling rejoin API");
           return fetch("/api/rejoin", { method: "POST" });

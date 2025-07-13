@@ -19,12 +19,31 @@ def handle_connect():
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print("Client disconnected:", request.sid)  
+    print("Client disconnected:", request.sid)
+    if request.sid in socket_to_player:
+        print(f"Player {socket_to_player[request.sid] + 1} disconnected")
+        del socket_to_player[request.sid]
 
 @socketio.on('join-game')
 def handle_join_game(data):
     print(f"joined game with data: {data}")                                      
     global desired_humans, next_human_slot, game                                 
+
+    if request.sid in socket_to_player:
+        print(f"Player {socket_to_player[request.sid] + 1} is rejoining - resetting game")
+        game = None
+        desired_humans = None
+        next_human_slot = 0
+        socket_to_player.clear()
+        print("Game reset due to player rejoin!")
+
+    if desired_humans is not None and desired_humans != data.get('numHumans', 1):
+        print(f"Player count changed from {desired_humans} to {data.get('numHumans', 1)} - resetting game")
+        game = None
+        desired_humans = None
+        next_human_slot = 0
+        socket_to_player.clear()
+        print("Game reset due to player count change!")
 
     if desired_humans is None:                                                   
         desired_humans = data.get('numHumans', 1)                                
@@ -74,7 +93,6 @@ def game_state():
     current_player = game.players[game.turn]
     current_player_id = current_player.id
     
-    # Check for self-draw win
     if current_player_id in game.human_players and game.has_drawn and game.last_discard is None:
         if check_win(current_player.hand, current_player.exposed_hand):
             calculate_tai(current_player)
@@ -405,6 +423,17 @@ def reset():
     socket_to_player.clear()
     print("Game reset!")
     return jsonify({"message": "Game reset"}), 200
+
+@app.route("/api/rejoin", methods=["POST"])
+def rejoin():
+    global game, desired_humans, next_human_slot, socket_to_player
+    print("Player rejoin detected - resetting game state")
+    game = None
+    desired_humans = None
+    next_human_slot = 0
+    socket_to_player.clear()
+    print("Game reset due to player rejoin!")
+    return jsonify({"message": "Game reset for rejoin"}), 200
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
