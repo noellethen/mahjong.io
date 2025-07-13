@@ -12,9 +12,19 @@ function Homepage() {
 
   const handlePlay = async (numHumans: number) => {
     try {
+      // Check if there's an existing game before calling rejoin
       const res = await fetch("/api/game_state");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
+
+      // Only call rejoin if there's an existing game (not waiting for players)
+      if (!data.waiting && data.needed === undefined) {
+        console.log("Existing game detected - calling rejoin API");
+        await fetch("/api/rejoin", { method: "POST" });
+        console.log("Game state reset for rejoin");
+      } else {
+        console.log("No existing game - proceeding with fresh start");
+      }
 
       if (data.winner !== undefined || data.draw) {
         await fetch("/api/reset", { method: "POST" });
