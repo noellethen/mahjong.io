@@ -469,7 +469,14 @@ function Gamemode() {
   });
 
   return (
-    <div className="full-screen-component relative h-screen flex flex-col items-center justify-center space-y-6">
+    <div className="full-screen-component relative h-screen flex flex-col items-center justify-center space-y-6" 
+      style={{
+        backgroundImage: `url('/designs/default_board.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       {/* Player 4 (left)*/}
       <div className="absolute inset-y-0 left-95 flex flex-col justify-center items-center space-y-4">
         <div className="flex flex-col space-y-1">
@@ -478,7 +485,7 @@ function Gamemode() {
               <img
                 src={`/tiles/${t}.png`}
                 alt={t}
-                className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-90 transition-transform duration-200 hover:scale-105"
+                className="h-[min(6vmin,2.5rem)] w-auto object-contain drop-shadow rotate-90 transition-transform duration-200 hover:scale-105"
               />
             </div>
           ))}
@@ -492,7 +499,7 @@ function Gamemode() {
                 key={`hidden-${i}`}
                 src={skinMap[equippedSkin]}
                 alt="Hidden tile"
-                className="h-[min(6vmin,2.5rem)] w-auto object-contain justify-left rotate-90 transition-transform duration-200 hover:scale-105"
+                className="h-[min(6vmin,2.5rem)] w-auto drop-shadow object-contain justify-left rotate-90 transition-transform duration-200 hover:scale-105"
               />
           ))}
         </div>
@@ -506,7 +513,7 @@ function Gamemode() {
               key={`hidden-${i}`}
               src={skinMap[equippedSkin]}
               alt="Hidden tile"
-              className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-270 transition-transform duration-200 hover:scale-105"
+              className="h-[min(6vmin,2.5rem)] w-auto drop-shadow object-contain rotate-270 transition-transform duration-200 hover:scale-105"
             />
           ))}
         </div>
@@ -519,7 +526,7 @@ function Gamemode() {
               <img
                 src={`/tiles/${t}.png`}
                 alt={t}
-                className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-270 transition-transform duration-200 hover:scale-105"
+                className="h-[min(6vmin,2.5rem)] w-auto object-contain drop-shadow rotate-270 transition-transform duration-200 hover:scale-105"
               />
             </div>
           ))}
@@ -539,7 +546,7 @@ function Gamemode() {
               key={`hidden-${i}`}
               src={skinMap[equippedSkin]}
               alt="Hidden tile"
-              className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-180 transition-transform duration-200 hover:scale-105"
+              className="h-[min(6vmin,2.5rem)] w-auto drop-shadow object-contain rotate-180 transition-transform duration-200 hover:scale-105"
             />
           ))}
         </div>
@@ -550,7 +557,7 @@ function Gamemode() {
               <img
                 src={`/tiles/${t}.png`}
                 alt={t}
-                className="h-[min(6vmin,2.5rem)] w-auto object-contain rotate-180 transition-transform duration-200 hover:scale-105"
+                className="h-[min(6vmin,2.5rem)] w-auto drop-shadow object-contain rotate-180 transition-transform duration-200 hover:scale-105"
               />
             </div>
           ))}
@@ -625,7 +632,7 @@ function Gamemode() {
             <img
               src={`/tiles/${t}.png`}
               alt={t}
-              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
+              className="h-[min(8vmin,3rem)] w-auto drop-shadow object-contain transition-transform duration-200 hover:scale-105"
             />
           </div>
         ))}
@@ -643,7 +650,7 @@ function Gamemode() {
             <img
               src={`/tiles/${tile}.png`}
               alt={tile}
-              className="h-[min(8vmin,3rem)] w-auto object-contain transition-transform duration-200 hover:scale-105"
+              className="h-[min(8vmin,3rem)] w-auto object-contain drop-shadow transition-transform duration-200 hover:scale-105"
             />
           </div>
         ))}
