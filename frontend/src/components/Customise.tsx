@@ -131,12 +131,12 @@ const Customise: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black-900 py-8 px-4">
+    <div className="full-screen-component min-h-screen py-8 px-125 bg-[url('/Homepage.png')] bg-contain bg-center bg-no-repeat">
       <h1 className="text-3xl font-bold text-center text-white mb-4">
         Customise
       </h1>
       <div className="flex justify-center mb-6 py-10">
-        <div className="relative inline-flex bg-gray-800 rounded-full p-1">
+        <div className="relative inline-flex rounded-full p-1">
           <div
             className="absolute top-1 bottom-1 w-1/2 bg-goldenrod rounded-full transition-all duration-300"
             style={{ left: tab === 'skins' ? '0%' : '50%' }}

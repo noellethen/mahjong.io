@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 interface Question {
   questionText: string;
@@ -89,7 +90,7 @@ const Quiz: React.FC = () => {
 
   const renderQuestion = () => (
     <>
-      <h2 className="text-3xl font-semibold">{currentQuestion?.questionText}</h2>
+      <h2 className="text-3xl font-semibold text-black">{currentQuestion?.questionText}</h2>
       <div className="mt-4 flex flex-row justify-center gap-4">
         {currentQuestion?.setTiles?.map((tile) => (
           <img key={tile} src={`/tiles/${tile}.png`} alt={tile} className="h-16 w-auto" />
@@ -100,7 +101,8 @@ const Quiz: React.FC = () => {
           <button
             key={opt}
             onClick={() => handleSelect(opt)}
-            className="w-32 h-20 flex items-center justify-center bg-blue-600 hover:bg-blue-700 rounded"
+            className="flex items-center justify-center bg-transparent hover:bg-goldenrod rounded"
+            style={{ backgroundColor: "transparent" }}
           >
             <OptionTile opt={opt} />
           </button>
@@ -124,7 +126,7 @@ const Quiz: React.FC = () => {
   const renderWrong = () => (
     <>
       <h2 className="text-4xl font-bold text-red-500">Wrong!</h2>
-      <p className="mt-2 text-2xl">Your score: {levelIndex} / {difficulties.length}</p> {/* ⬅️ UPDATED: show score */}
+      <p className="mt-2 text-2xl">Your score: {levelIndex} / {difficulties.length}</p>
       <div className="mt-6 flex gap-4">
         <button onClick={() => navigate("/homepage")}>
           Home
@@ -157,12 +159,31 @@ const Quiz: React.FC = () => {
   );
 
   return (
-    <div className="fixed inset-0 bg-zinc-900 flex flex-col items-center justify-center text-white p-4">
+    <div
+      className="
+        fixed inset-0
+        bg-[url('/Homepage.png')]
+        bg-contain
+        bg-no-repeat
+        bg-center
+        flex flex-col items-center justify-center
+        text-white p-4
+      "
+    >
       {status === "question" && currentQuestion && renderQuestion()}
       {status === "correct" && renderCorrect()}
       {status === "wrong" && renderWrong()}
       {status === "finished" && renderFinished()}
+        <div className="max-w-6xl mx-auto mt-6 flex justify-end">
+          <Link
+            to="/homepage"
+            className="!text-white visited:!text-white hover:underline"
+          >
+            ← Back to Home
+          </Link>
+        </div>
     </div>
+
   );
 };
 
