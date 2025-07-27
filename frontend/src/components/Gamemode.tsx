@@ -3,6 +3,7 @@ import {io, Socket} from "socket.io-client";
 import { useLocation} from "react-router-dom";
 import { Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+const BACKEND = import.meta.env.VITE_BACKEND_URL as string;
 
 type PlayerInfo = {
   id: number;
@@ -36,8 +37,6 @@ type GameStateResponse = {
 };
 
 type SkinColor = 'green' | 'red' | 'orange' | 'yellow' | 'blue' | 'pink';
-
-const BACKEND = import.meta.env.VITE_BACKEND_URL as string;
 
 function Gamemode() {
   const { state } = useLocation();   
