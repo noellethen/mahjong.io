@@ -70,7 +70,7 @@ function Gamemode() {
   }, []);
   
   useEffect(() => {
-    const socket: Socket = io("http://localhost:5000");
+    const socket: Socket = io("https://mahjong-io-backend-m2gh.onrender.com");
     console.log("Emitting join-game with:", state.numHumans);
     
     fetch("/api/game_state")

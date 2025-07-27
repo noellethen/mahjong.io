@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: "https://mahjong-io-backend-m2gh.onrender.com",
         changeOrigin: true,
         secure: false,
       },
