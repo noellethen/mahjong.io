@@ -37,6 +37,8 @@ type GameStateResponse = {
 
 type SkinColor = 'green' | 'red' | 'orange' | 'yellow' | 'blue' | 'pink';
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL as string;
+
 function Gamemode() {
   const { state } = useLocation();   
   const [playerId, setPlayerId] = useState<number | null>(null);
@@ -70,15 +72,15 @@ function Gamemode() {
   }, []);
   
   useEffect(() => {
-    const socket: Socket = io("https://mahjong-io-backend-m2gh.onrender.com");
+    const socket: Socket = io(BACKEND, { transports: ["websocket"] });
     console.log("Emitting join-game with:", state.numHumans);
     
-    fetch("/api/game_state")
+    fetch(`${BACKEND}/api/game_state`)
       .then((res) => res.json())
       .then(async (data) => {
         if (!data.waiting && data.needed === undefined) {
           console.log("Existing game detected - calling rejoin API");
-          await fetch("/api/rejoin", { method: "POST" });
+          await fetch(`${BACKEND}/api/rejoin`, { method: "POST" });
         } else {
           console.log("No existing game - proceeding with join");
         }
@@ -125,7 +127,7 @@ function Gamemode() {
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      fetch("/api/game_state")
+      fetch(`${BACKEND}/api/game_state`)
         .then((res) => {
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           return res.json() as Promise<GameStateResponse>;
@@ -197,7 +199,7 @@ function Gamemode() {
 
   const doPong = async (tile: string) => {
     try {
-      const res = await fetch("/api/pong", {
+      const res = await fetch(`${BACKEND}/api/pong`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tile, player_id: playerId }),
@@ -213,7 +215,7 @@ function Gamemode() {
 
   const doNoPong = async () => {
     try {
-      await fetch("/api/pass_pong", { 
+      await await fetch(`${BACKEND}/api/pass_pong`, { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ player_id: playerId }),
@@ -227,7 +229,7 @@ function Gamemode() {
 
   const doChi = async (meld: string[]) => {
     try {
-      const res = await fetch("/api/chi", {
+      const res = await fetch(`${BACKEND}/api/chi`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tiles: meld, player_id: playerId }),
@@ -243,7 +245,7 @@ function Gamemode() {
 
   const doNoChi = async () => {
     try {
-      await fetch("/api/pass_chi", { 
+      await fetch(`${BACKEND}/api/pass_chi`, { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ player_id: playerId }),
@@ -273,7 +275,7 @@ function Gamemode() {
       return;
     }
 
-    fetch("/api/discard_tile", {
+    fetch(`${BACKEND}/api/discard_tile`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tile, player_id: playerId }),
@@ -297,7 +299,7 @@ function Gamemode() {
           console.log("Pong/Chi possible - fetching game state for options");
           setWaitingForChiPong(true); 
           setTimeout(() => {
-            fetch("/api/game_state")
+            fetch(`${BACKEND}/api/game_state`)
               .then((res) => res.json())
               .then((gameData) => {
                 if (gameData.players) {
