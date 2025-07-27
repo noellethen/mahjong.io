@@ -435,5 +435,15 @@ def rejoin():
     print("Game reset due to player rejoin!")
     return jsonify({"message": "Game reset for rejoin"}), 200
 
+import os
+
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    port = int(os.getenv("PORT", 5000))
+    debug = os.getenv("FLASK_DEBUG", "false").lower() in ("1", "true", "yes")
+
+    socketio.run(
+        app,
+        host="0.0.0.0",
+        port=port,
+        debug=debug,
+    )
