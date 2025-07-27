@@ -143,7 +143,7 @@ const Quiz: React.FC = () => {
 
   const renderFinished = () => (
     <>
-      <h2 className="text-4xl font-bold">Quiz Complete!</h2>
+      <h2 className="text-4xl font-bold">Congratulations!</h2>
       <div className="mt-6 flex gap-4">
         <button onClick={() => navigate("/homepage")}>
           Home

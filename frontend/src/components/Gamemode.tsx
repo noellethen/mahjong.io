@@ -190,7 +190,7 @@ function Gamemode() {
         .finally(() => {
           setLoading(false);
         });
-    }, 2000);
+    }, 1000);
 
     return () => clearInterval(intervalId);
   }, [drawnTile, playerId]);
