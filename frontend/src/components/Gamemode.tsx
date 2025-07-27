@@ -35,12 +35,14 @@ type GameStateResponse = {
   needed?: number;
 };
 
+type SkinColor = 'green' | 'red' | 'orange' | 'yellow' | 'blue' | 'pink';
+
 function Gamemode() {
   const { state } = useLocation();   
   const [playerId, setPlayerId] = useState<number | null>(null);
-  const [equippedSkin, setEquippedSkin] = useState<string>("green");
+  const [equippedSkin, setEquippedSkin] = useState<SkinColor>("green");
 
-  const skinMap = useMemo(() => ({
+  const skinMap = useMemo<Record<SkinColor, string>>(() => ({
     green:  "/tiles/back_green.png",
     red:    "/designs/back_red.png",
     orange: "/designs/back_orange.png",
@@ -73,13 +75,12 @@ function Gamemode() {
     
     fetch("/api/game_state")
       .then((res) => res.json())
-      .then((data) => {
+      .then(async (data) => {
         if (!data.waiting && data.needed === undefined) {
           console.log("Existing game detected - calling rejoin API");
-          return fetch("/api/rejoin", { method: "POST" });
+          await fetch("/api/rejoin", { method: "POST" });
         } else {
           console.log("No existing game - proceeding with join");
-          return Promise.resolve();
         }
       })
       .then(() => {
@@ -88,7 +89,6 @@ function Gamemode() {
       })
       .catch((err) => {
         console.error("Error checking game state:", err);
-        // Still try to join even if check fails
         socket.emit("join-game", { numHumans: state.numHumans });
       });
 
