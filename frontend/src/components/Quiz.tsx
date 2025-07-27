@@ -90,7 +90,7 @@ const Quiz: React.FC = () => {
 
   const renderQuestion = () => (
     <>
-      <h2 className="text-3xl font-semibold text-black">{currentQuestion?.questionText}</h2>
+      <h2 className="text-3xl font-semibold text-white">{currentQuestion?.questionText}</h2>
       <div className="mt-4 flex flex-row justify-center gap-4">
         {currentQuestion?.setTiles?.map((tile) => (
           <img key={tile} src={`/tiles/${tile}.png`} alt={tile} className="h-16 w-auto" />
