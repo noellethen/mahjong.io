@@ -211,12 +211,12 @@ const Shop: React.FC = () => {
         </button>
       </div>
 
-      <div className="min-h-screen max-w-6xl w-full mx-auto 
+      <div className="min-h-screen max-w-3xl w-full mx-auto 
         grid 
         grid-cols-1       
         sm:grid-cols-2     
         md:grid-cols-3     
-        gap-6">
+        gap-1">
         {filteredItems.map(item => (
           <ShopItem
             key={item.id}
