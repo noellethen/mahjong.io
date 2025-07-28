@@ -166,7 +166,7 @@ const Customise: React.FC = () => {
 
       {tab === 'skins' && (
         <>
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-6">
             {allItems
               .filter(i => i.type === 'skin' && flags[i.key])
               .map(i => (
