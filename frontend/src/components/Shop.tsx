@@ -211,7 +211,7 @@ const Shop: React.FC = () => {
         </button>
       </div>
 
-      <div className="w-full mx-auto flex flex-wrap justify-center grid grid-cols-3 gap-6">
+      <div className="w-full mx-auto flex flex-wrap justify-center grid grid-cols-3 gap-125">
         {filteredItems.map(item => (
           <ShopItem
             key={item.id}
