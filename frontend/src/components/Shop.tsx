@@ -113,7 +113,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, onBuySuccess, owned }) => {
               : loading
               ? 'bg-gray-500 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700'
-          } text-white font-medium py-1 px-3 rounded`}
+          } text-white font-medium py-2 px-3 rounded`}
           onClick={handleBuy}
           disabled={loading || owned}
         >
@@ -211,12 +211,12 @@ const Shop: React.FC = () => {
         </button>
       </div>
 
-      <div className="min-h-screen max-w-3xl w-full mx-auto 
+      <div className="max-w-3xl w-full mx-auto
         grid 
         grid-cols-1       
         sm:grid-cols-2     
         md:grid-cols-3     
-        gap-1">
+        gap-4">
         {filteredItems.map(item => (
           <ShopItem
             key={item.id}
