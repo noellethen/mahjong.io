@@ -174,7 +174,7 @@ const Shop: React.FC = () => {
   );
 
   return (
-    <div className="full-screen-component min-h-screen py-8 px-125 bg-[url('/Homepage.png')] bg-contain bg-center bg-no-repeat">
+    <div className="full-screen-component py-8 px-4 bg-[url('/Homepage.png')] bg-contain bg-center bg-no-repeat">
       <h1 className="text-3xl font-bold text-center text-white mb-4">
         Shop
       </h1>
@@ -216,8 +216,7 @@ const Shop: React.FC = () => {
         grid-cols-1       
         sm:grid-cols-2     
         md:grid-cols-3     
-        gap-6            
-        justify-items-center">
+        gap-6">
         {filteredItems.map(item => (
           <ShopItem
             key={item.id}
