@@ -165,13 +165,18 @@ const Customise: React.FC = () => {
       </div>
 
       {tab === 'skins' && (
-        <>
-        <div className="max-w-3xl w-full mx-auto
-          grid 
-          grid-cols-1       
-          sm:grid-cols-2     
-          md:grid-cols-3     
-          gap-4">
+        <div className="px-4">
+          <div
+            className="
+              max-w-4xl    /* cap the overall width so cards don’t stretch forever */
+              mx-auto
+              grid
+              grid-cols-1  /* 1 column on mobile */
+              sm:grid-cols-2  /* 2 columns ≥640px */
+              md:grid-cols-3  /* 3 columns ≥768px */
+              gap-6        /* 1.5rem gutter all around */
+            "
+          >
             {allItems
               .filter(i => i.type === 'skin' && flags[i.key])
               .map(i => (
@@ -183,25 +188,19 @@ const Customise: React.FC = () => {
                 />
               ))}
           </div>
-        </>
+        </div>
       )}
 
       {tab === 'tables' && (
-        <>
-          <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="px-4">
+          <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {allItems
               .filter(i => i.type === 'table' && flags[i.key])
-              .map(i => (
-                <OwnedItem
-                  key={i.key}
-                  item={i}
-                  onEquip={handleEquip}
-                  equipped={i.key === equippedTable}
-                />
-              ))}
+              .map(i => ( /* … */ ))}
           </div>
-        </>
+        </div>
       )}
+
 
       <div className="max-w-6xl mx-auto mt-6 flex justify-end">
         <Link
