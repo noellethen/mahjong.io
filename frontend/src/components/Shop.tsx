@@ -211,7 +211,7 @@ const Shop: React.FC = () => {
         </button>
       </div>
 
-      <div className="max-w-6xl w-full mx-auto 
+      <div className="full-screen-component max-w-6xl w-full mx-auto 
         grid 
         grid-cols-1       
         sm:grid-cols-2     
