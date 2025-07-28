@@ -168,13 +168,13 @@ const Customise: React.FC = () => {
         <div className="px-4">
           <div
             className="
-              max-w-4xl    /* cap the overall width so cards don’t stretch forever */
+              max-w-4xl    
               mx-auto
               grid
-              grid-cols-1  /* 1 column on mobile */
-              sm:grid-cols-2  /* 2 columns ≥640px */
-              md:grid-cols-3  /* 3 columns ≥768px */
-              gap-6        /* 1.5rem gutter all around */
+              grid-cols-1 
+              sm:grid-cols-2  
+              md:grid-cols-3  
+              gap-6      
             "
           >
             {allItems
