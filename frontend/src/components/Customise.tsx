@@ -36,22 +36,22 @@ interface OwnedItemProps {
 
 const OwnedItem: React.FC<OwnedItemProps> = ({ item, onEquip, equipped }) => (
   <div
-    className={`bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col w-64 h-72
+    className={`bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col w-48 h-64
       ${equipped ? 'border-4 border-yellow-500' : ''}`}
   >
     <img
       src={item.imageUrl}
       alt={item.name}
-      className="h-40 w-full object-contain"
+      className="h-32 w-full object-contain"
     />
-    <div className="p-4 flex flex-col flex-grow">
+    <div className="p-2 flex flex-col flex-grow">
       <h3 className="text-lg font-semibold mb-2 text-white h-10 overflow-hidden whitespace-nowrap overflow-ellipsis">
         {item.name}
       </h3>
       <button
         onClick={() => { if (!equipped) onEquip(item) }}
         disabled={equipped}
-        className="w-full rounded-md border px-4 py-2 text-white font-medium"
+        className="w-full rounded-md border px-2 py-2 text-white font-medium"
         style={{ backgroundColor: equipped ? 'green' : undefined }}
       >
         {equipped ? 'Equipped' : 'Equip'}
@@ -166,7 +166,12 @@ const Customise: React.FC = () => {
 
       {tab === 'skins' && (
         <>
-          <div className="w-full mx-auto flex flex-wrap justify-center grid grid-cols-3 gap-6">
+        <div className="max-w-3xl w-full mx-auto
+          grid 
+          grid-cols-1       
+          sm:grid-cols-2     
+          md:grid-cols-3     
+          gap-4">
             {allItems
               .filter(i => i.type === 'skin' && flags[i.key])
               .map(i => (
