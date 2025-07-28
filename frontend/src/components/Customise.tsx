@@ -35,9 +35,11 @@ interface OwnedItemProps {
 }
 
 const OwnedItem: React.FC<OwnedItemProps> = ({ item, onEquip, equipped }) => (
-  <div
-    className={`bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col w-48 h-64
-      ${equipped ? 'border-4 border-yellow-500' : ''}`}
+  <div className={`
+      bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col
+      w-full max-w-xs h-64 mx-auto
+      ${equipped ? 'border-4 border-yellow-500' : ''}
+    `}
   >
     <img
       src={item.imageUrl}
