@@ -174,7 +174,7 @@ const Shop: React.FC = () => {
   );
 
   return (
-    <div className="full-screen-component py-8 px-4 bg-[url('/Homepage.png')] bg-contain bg-center bg-no-repeat">
+    <div className="full-screen-component bg-[url('/Homepage.png')] bg-contain bg-center bg-no-repeat">
       <h1 className="text-3xl font-bold text-center text-white mb-4">
         Shop
       </h1>
