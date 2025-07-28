@@ -95,17 +95,17 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, onBuySuccess, owned }) => {
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col w-64 h-80">
+    <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden flex flex-col w-48 h-64">
       <img
         src={item.imageUrl}
         alt={item.name}
-        className="h-40 w-full object-contain"
+        className="h-32 w-full object-contain"
       />
-      <div className="p-4 flex flex-col flex-grow">
-        <h3 className="text-lg font-semibold mb-2 text-white h-10 overflow-hidden whitespace-nowrap overflow-ellipsis">
+      <div className="p-2 flex flex-col flex-grow">
+        <h3 className="text-base font-semibold mb-2 text-white h-10 overflow-hidden whitespace-nowrap overflow-ellipsis">
           {item.name}
         </h3>
-        <p className="text-gray-300 mb-4">{item.price} coins</p>
+        <p className="text-gray-300 mb-2">{item.price} coins</p>
         <button
           className={`mt-auto ${
             owned
@@ -113,7 +113,7 @@ const ShopItem: React.FC<ShopItemProps> = ({ item, onBuySuccess, owned }) => {
               : loading
               ? 'bg-gray-500 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700'
-          } text-white font-medium py-2 px-4 rounded`}
+          } text-white font-medium py-1 px-3 rounded`}
           onClick={handleBuy}
           disabled={loading || owned}
         >
